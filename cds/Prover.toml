@@ -1,0 +1,14 @@
+ageAbove18 = ""
+gender = ""
+pinCode = ""
+revealAgeAbove18 = ""
+revealGender = ""
+revealPinCode = ""
+revealState = ""
+state = ""
+
+[qrDataExtractor]
+ageAbove18 = ""
+gender = ""
+pinCode = ""
+state = ""
