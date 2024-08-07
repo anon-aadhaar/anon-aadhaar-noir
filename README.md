@@ -5,10 +5,16 @@ At this point, the following modules work:
 
 1. SHA256 Hash
 2. RSA Signature Verification
-3. Computing the nullifier using the Poseidon Hash function
-4. Converting the IST timestamp to UTC UNIX timestamp
-5. Conditional Disclosure of Secrets
+3. Conditional Disclosure of Secrets
+4. Computing the nullifier using the Poseidon Hash function
+5. Converting the IST timestamp to UTC UNIX timestamp
 6. SignalHash constraints for frontrunning atttacks
+
+To run the entire circuit:
+
+1. cd aadhaar_qr_verifier
+2. nargo check
+3. nargo test
 
 To run the signature circuit:
 
