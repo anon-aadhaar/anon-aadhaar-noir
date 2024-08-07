@@ -18,7 +18,6 @@ fn generate_2048_bit_signature_parameters() {
     let priv_key = RsaPrivateKey::new(&mut rng, bits).expect("failed to generate a key");
     let pub_key: RsaPublicKey = priv_key.clone().into();
 
-    //let msg: &str = "hello world";
     let msg = [
                 "86",
                 "50",
@@ -1182,13 +1181,12 @@ fn main() {
 }
 
 
-
+#[test]
 fn test_signature_generation_impl() {
     let mut rng = rand::thread_rng();
     let bits = 2048;
     let priv_key = RsaPrivateKey::new(&mut rng, bits).expect("failed to generate a key");
     let pub_key: RsaPublicKey = priv_key.clone().into();
-    //let text: &str = "hello world";
     let msg = [
                 "86",
                 "50",
@@ -2331,14 +2329,20 @@ fn test_signature_generation_impl() {
     let msg1 = msg.join("");
     let msg_str: &str = &msg1;
     let signing_key = rsa::pkcs1v15::SigningKey::<Sha256>::new(priv_key);
+    let start = std::time::Instant::now();
     let sig: Vec<u8> = signing_key.sign(msg_str.as_bytes()).to_vec();
+    let duration = start.elapsed();
+    println!("Signature Generation Time: {:?}", duration);
     let verifying_key = VerifyingKey::<Sha256>::new(pub_key);
 
+    let start = std::time::Instant::now();
     let result = verifying_key.verify(
         msg_str.as_bytes(),
         &Signature::try_from(sig.as_slice()).unwrap(),
     );
     result.expect("failed to verify");
+    let duration = start.elapsed();
+    println!("Signature Generation Time: {:?}", duration);
 
 }
 
