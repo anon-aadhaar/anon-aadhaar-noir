@@ -10,11 +10,11 @@ At this point, the following modules work:
 5. Conditional Disclosure of Secrets
 6. SignalHash constraints for frontrunning atttacks
 
-To run the repo:
+To run the signature circuit:
 
-1. git clone
-2. nargo check
-3. nargo test
+1. cd signature_gen
+2. cargo check
+3. cargo test
 
 And in each of the folders of hash_and_sign, poseidon, nullifier, timestamp, cds, signal:
 
