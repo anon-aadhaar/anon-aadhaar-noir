@@ -16,11 +16,12 @@ To run the entire circuit:
 2. nargo check
 3. nargo test
 
-To run the signature circuit:
+To run the RSA-SHA256 circuit:
 
-1. cd signature_gen
-2. cargo check
-3. cargo test
+1. cd rsa-sha256
+2. noirup -v 0.32.0
+3. nargo check
+4. nargo test
 
 And in each of the folders of hash_and_sign, poseidon, nullifier, timestamp, cds, signal:
 
