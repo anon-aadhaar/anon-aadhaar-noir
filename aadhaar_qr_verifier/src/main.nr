@@ -9,6 +9,22 @@ use dep::bignum::utils::arrayX::ArrayX;
 use dep::bignum::fields::Params2048;
 use dep::bignum::fields::Params1024;
 
+type BN1024 = BigNum<9, Params1024>;
+type BN2048 = BigNum<18, Params2048>;
+type BNInst1024 = BigNumInstance<9, Params1024>;
+type BNInst2048 = BigNumInstance<18, Params2048>;
+
+type RSA1024 = RSA<BN1024, BNInst1024, 128>;
+type RSA2048 = RSA<BN2048, BNInst2048, 256>;
+
+// Define a struct to hold the extracted QR data
+struct QRData {
+    ageAbove18: Field,
+    gender: Field,
+    pinCode: Field,
+    state: Field,
+}
+
 struct RSA<BN, BNInstance, let NumBytes: u32>{}
 
 /**
@@ -64,46 +80,32 @@ impl<BN, BNInstance, let NumBytes: u32> RSA<BN, BNInstance, NumBytes>  where BN:
  *             1,024 bit RSA: 11,983 gates per verification
  * A circuit that verifies 1 signature (and does nothing else) will cost ~32k due to initialization costs of lookup tables
  **/
-    pub fn verify_sha256_pkcs1v15(_: Self, instance: BNInstance, msg_hash: [u8; 32], sig: BN) -> bool {
+    pub fn verify_sha256_pkcs1v15(_: Self, public_key: BNInstance, msg_hash: [u8; 32], sig: BN) -> bool {
         // e = 65537 = 1 0000 0000 0000 0001
-        let mut exponentiated = instance.mul(sig, sig);
-        exponentiated = instance.mul(exponentiated, exponentiated);
-        exponentiated = instance.mul(exponentiated, exponentiated);
-        exponentiated = instance.mul(exponentiated, exponentiated);
-        exponentiated = instance.mul(exponentiated, exponentiated);
-        exponentiated = instance.mul(exponentiated, exponentiated);
-        exponentiated = instance.mul(exponentiated, exponentiated);
-        exponentiated = instance.mul(exponentiated, exponentiated);
-        exponentiated = instance.mul(exponentiated, exponentiated);
-        exponentiated = instance.mul(exponentiated, exponentiated);
-        exponentiated = instance.mul(exponentiated, exponentiated);
-        exponentiated = instance.mul(exponentiated, exponentiated);
-        exponentiated = instance.mul(exponentiated, exponentiated);
-        exponentiated = instance.mul(exponentiated, exponentiated);
-        exponentiated = instance.mul(exponentiated, exponentiated);
-        exponentiated = instance.mul(exponentiated, exponentiated);
-        exponentiated = instance.mul(exponentiated, sig);
+        let mut exponentiated = public_key.mul(sig, sig);
+        exponentiated = public_key.mul(exponentiated, exponentiated);
+        exponentiated = public_key.mul(exponentiated, exponentiated);
+        exponentiated = public_key.mul(exponentiated, exponentiated);
+        exponentiated = public_key.mul(exponentiated, exponentiated);
+        exponentiated = public_key.mul(exponentiated, exponentiated);
+        exponentiated = public_key.mul(exponentiated, exponentiated);
+        exponentiated = public_key.mul(exponentiated, exponentiated);
+        exponentiated = public_key.mul(exponentiated, exponentiated);
+        exponentiated = public_key.mul(exponentiated, exponentiated);
+        exponentiated = public_key.mul(exponentiated, exponentiated);
+        exponentiated = public_key.mul(exponentiated, exponentiated);
+        exponentiated = public_key.mul(exponentiated, exponentiated);
+        exponentiated = public_key.mul(exponentiated, exponentiated);
+        exponentiated = public_key.mul(exponentiated, exponentiated);
+        exponentiated = public_key.mul(exponentiated, exponentiated);
+        exponentiated = public_key.mul(exponentiated, sig);
 
         let mut padded_sha256_hash_bytes: [u8; NumBytes] = exponentiated.to_le_bytes();
         compare_signature_sha256(padded_sha256_hash_bytes, msg_hash)
     }
 }
 
-type BN1024 = BigNum<9, Params1024>;
-type BN2048 = BigNum<18, Params2048>;
-type BNInst1024 = BigNumInstance<9, Params1024>;
-type BNInst2048 = BigNumInstance<18, Params2048>;
 
-type RSA1024 = RSA<BN1024, BNInst1024, 128>;
-type RSA2048 = RSA<BN2048, BNInst2048, 256>;
-
-// Define a struct to hold the extracted QR data
-struct QRData {
-    ageAbove18: Field,
-    gender: Field,
-    pinCode: Field,
-    state: Field,
-}
 
 fn cds_circuit(
     revealAgeAbove18: Field,
@@ -237,7 +239,7 @@ fn signal_circuit(signalHash: Field, signalHashSquare: Field) {
 
 fn extractor_circuit(msg: [Field; 1137], msg_str: str<2663>) {
     let sha256_hash: [u8; 32] = dep::std::hash::sha256(msg_str.as_bytes());
-    let BNInstance: BNInst2048 = BigNumInstance::new(
+    let public_key: BNInst2048 = BigNumInstance::new(
         [
             0x2b465b3fb690242e1235c670dcfb25, 0x640a8933d7daca84a4acef904154b4, 0x62edbfe63e266a5bd8b709e161c8ad, 0x67e5fca1ee7abce8c55e2af10e3c88, 0x47e169541fbcad1db03cdb3bb6ddb4, 0xb2010527709bcd13954404f47e63cb, 0xa2da280f98291de2db2eea3b1198db, 0x5379b351c475a2661b5e51073e019c, 0x204877f0a93bb50a5ae94d2e9cd04a, 0xf23d4f80b1b93f53797ccfa2121e84, 0x5ad9d98cb0522f897f860a3394fec4, 0x9d88eb75090dbe760e4113ef7c3a4e, 0xaf43185f371a0a183ab9bdfc89f17a, 0x06f9b343e7418c83f7f2adafa38505, 0xbb8c5f0c296bcf5ba749849934cb20, 0x0ecf5c0b916c7a8cc5f7b3ff3e6802, 0xe32855596c16ad483cfd9b3aba4ca9, 0xc8
         ],
@@ -247,7 +249,7 @@ fn extractor_circuit(msg: [Field; 1137], msg_str: str<2663>) {
     );
     let signature: BigNum<18, Params2048> = BigNum::from_array([0x05c6e0981bbc3b57a3a1fced4d17da, 0xc91eb859d2829b53dc4e498135fff1, 0xcfaaf3614931fbd153dd4178298723, 0xeba33602ef3c36f2ac342a07998b04, 0x0b8f5b19985490400aaf8f203906dd, 0x34ec83e9af254e6bd9024b1275e44b, 0xcb0710065948ca3e4fc5ca85676716, 0xbc2d33b6c7a4f9cf6c46d5e63b6a40, 0x3a543d690a16366a4a46b88720c944, 0x42479ca91ed769178b4a5a17c139b7, 0x71f39517ba6eaa91d035d690265e8d, 0x235ff0a16468b337f77a9b75d1bb9a, 0x03b4a44f63c446c9d945b8f7febf52, 0xc24de09a1a355f94fe46346b7830bb, 0xcc49c7bbe646f78197054169e0787e, 0xad7871ecf1ab2d0956aa7cdfd7dd1b, 0x46b8fd8d0c49f1ce2eef7e4f817ff3, 0xbd]);
     let rsa: RSA2048 = RSA {};
-    assert(rsa.verify_sha256_pkcs1v15(BNInstance, sha256_hash, signature));
+    assert(rsa.verify_sha256_pkcs1v15(public_key, sha256_hash, signature));
 
     let mut birth_year_vec: [Field; 4] = [0; 4];
     let mut birth_month_vec: [Field; 2] = [0; 2];
