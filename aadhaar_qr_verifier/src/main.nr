@@ -27,6 +27,46 @@ struct QRData {
 
 struct RSA<BN, BNInstance, let NumBytes: u32>{}
 
+// Position/order (not index) of fields in the data
+fn reference_id_position() -> u64 {
+    2
+}
+
+fn name_position() -> u64 {
+    3
+}
+
+fn dob_position() -> u64 {
+    4
+}
+
+fn gender_position() -> u64 {
+    5
+}
+
+fn pincode_position() -> u64 {
+    11
+}
+
+fn state_position() -> u64 {
+    13
+}
+
+fn photo_position() -> u64 {
+    18
+}
+
+// Maximum byte size for each field
+fn max_field_byte_size() -> u64 {
+    31
+}
+
+// Number of int chunks to pack the photo
+// Photo can only be of max 32 * 31 bytes (pack_size * max_field_byte_size)
+fn photo_pack_size() -> u64 {
+    32
+}
+
 /**
  * @brief Compare a recovered byte hash from an RSA signature to the original message hash
  * @details Taken from https://github.com/richardliang/noir-rsa
@@ -104,8 +144,6 @@ impl<BN, BNInstance, let NumBytes: u32> RSA<BN, BNInstance, NumBytes>  where BN:
         compare_signature_sha256(padded_sha256_hash_bytes, msg_hash)
     }
 }
-
-
 
 fn cds_circuit(
     revealAgeAbove18: Field,
@@ -237,7 +275,7 @@ fn signal_circuit(signalHash: Field, signalHashSquare: Field) {
     assert(signalHashSquare == signalHash * signalHash);
 }
 
-fn extractor_circuit(msg: [Field; 1137], msg_str: str<2663>, public_key: BNInst2048, signature: BigNum<18, Params2048>) {
+fn extractor_circuit(msg: [Field; 1137], msg_str: str<2663>, public_key: BNInst2048, signature: BigNum<18, Params2048>, delimiterIndices: [u64; 18]) {
     let sha256_hash: [u8; 32] = dep::std::hash::sha256(msg_str.as_bytes());
     let rsa: RSA2048 = RSA {};
     assert(rsa.verify_sha256_pkcs1v15(public_key, sha256_hash, signature));
@@ -249,15 +287,23 @@ fn extractor_circuit(msg: [Field; 1137], msg_str: str<2663>, public_key: BNInst2
     let month_data = 8;
     let day_data = 7;
     let mut age = 0;
-    for i in 39..49 {
-        if i >= 39 & i <= 40 {
-            birth_date_vec[i-39] = msg[i] - 48;
+    let birthday_start_index = delimiterIndices[dob_position() - 1] + 1; //39
+    let birthday_end_index = delimiterIndices[dob_position()]; //49
+    let birth_date_start_index = birthday_start_index; //39
+    let birth_date_end_index = birth_date_start_index + 1; //40
+    let birth_month_start_index = birth_date_end_index + 2; //42
+    let birth_month_end_index = birth_month_start_index + 1; //43
+    let birth_year_start_index = birth_month_end_index + 2; //45
+    let birth_year_end_index = birth_year_start_index + 3; //48 
+    for i in birthday_start_index..birthday_end_index {
+        if i >= birth_date_start_index & i <= birth_date_end_index {
+            birth_date_vec[i-birth_date_start_index] = msg[i] - 48;
         }
-        else if i >= 42 & i <= 43 {
-            birth_month_vec[i-42] = msg[i] - 48;
+        else if i >= birth_month_start_index & i <= birth_month_end_index {
+            birth_month_vec[i-birth_month_start_index] = msg[i] - 48;
         }
-        else if i >= 45 & i <= 48 {
-            birth_year_vec[i-45] = msg[i] - 48;
+        else if i >= birth_year_start_index & i <= birth_year_end_index {
+            birth_year_vec[i-birth_date_start_index] = msg[i] - 48;
         }
     }
 
@@ -276,11 +322,14 @@ fn extractor_circuit(msg: [Field; 1137], msg_str: str<2663>, public_key: BNInst2
         }
     }
 
-    let gender_data = msg[50] - 65;
+    let gender_index = delimiterIndices[gender_position() - 1] +  1;
+    let gender_data = msg[gender_index] - 65;
 
+    let pincode_start_index = delimiterIndices[pincode_position() - 1] + 1;
+    let pincode_end_index = delimiterIndices[pincode_position()];
     let mut pincode_vec: [Field; 6] = [0; 6];
-    for i in 98..104 {
-        pincode_vec[i-98] = msg[i] - 48;
+    for i in pincode_start_index..pincode_end_index {
+        pincode_vec[i - pincode_start_index] = msg[i] - 48;
     }
 
     let mut pincode_data = 0;
@@ -288,13 +337,16 @@ fn extractor_circuit(msg: [Field; 1137], msg_str: str<2663>, public_key: BNInst2
         pincode_data = pincode_data * 10 + i;
     }
 
+    let state_start_index = delimiterIndices[state_position() - 1] + 1;
+    let state_end_index = delimiterIndices[state_position()];
+    
     let mut state_vec: [Field; 5] = [0; 5];
     let mut state_data = 0;
-    for i in 119..124 {
-        state_vec[i-119] = msg[50] - 65;
-        state_data = state_data * 10 + state_vec[i-119];
-    };
 
+    for i in state_start_index..state_end_index {
+        state_vec[i - state_start_index] = msg[i] - 65;
+        state_data = state_data * 10 + state_vec[i - state_start_index];
+    };
 
     // Define a valid QRData instance
     let qrDataExtractor = QRData {
@@ -331,8 +383,10 @@ fn extractor_circuit(msg: [Field; 1137], msg_str: str<2663>, public_key: BNInst2
 
     let nullifierSeed: Field = 12345678; // Example seed
     let mut photo_vec: [Field; 952] = [0; 952];
-    for i in 185..1137 {
-        photo_vec[i-185] = msg[i] - 48;
+    let photo_start_index = delimiterIndices[photo_position() - 1] + 1;
+    let photo_end_index = 1137;
+    for i in photo_start_index..photo_end_index {
+        photo_vec[i - photo_start_index] = msg[i] - 48;
     };
     let mut photo: [Field; 32] = [0; 32];
     for i in 0..32 {
@@ -347,28 +401,37 @@ fn extractor_circuit(msg: [Field; 1137], msg_str: str<2663>, public_key: BNInst2
     let mut day: [Field; 2] = [0; 2];
     let mut hour: [Field; 2] = [0; 2];
 
+    let year_start_index = delimiterIndices[reference_id_position() - 1] + 5;
+    let year_end_index = year_start_index + 3;
+    let month_start_index = year_end_index + 1;
+    let month_end_index = month_start_index + 1;
+    let day_start_index = month_end_index + 1;
+    let day_end_index = day_start_index + 1;
+    let hour_start_index = day_end_index + 1;
+    let hour_end_index = hour_start_index + 1;
+
     let mut year_val = 0;
-    for i in 9..12 {
-        year[i-9] = msg[i] - 48;
-        year_val = 10 * year_val + (year[i-9]);
+    for i in year_start_index..year_end_index {
+        year[i - year_start_index] = msg[i] - 48;
+        year_val = 10 * year_val + (year[i - year_start_index]);
     }
 
     let mut month_val = 0;
-    for i in 13..14 {
-        month[i-13] = msg[i] - 48;
-        month_val = month_val * 10 + month[i-13];
+    for i in month_start_index..month_end_index {
+        month[i - month_start_index] = msg[i] - 48;
+        month_val = month_val * 10 + month[i - month_start_index];
     }
 
     let mut day_val = 0;
-    for i in 15..16 {
-        day[i-15] = msg[i] - 48;
-        day_val = day_val * 10 + day[i-15];
+    for i in day_start_index..day_end_index {
+        day[i - day_start_index] = msg[i] - 48;
+        day_val = day_val * 10 + day[i - day_start_index];
     }
 
     let mut hour_val = 0;
-    for i in 17..18 {
-        hour[i-17] = msg[i] - 48;
-        hour_val = 10 * hour_val + hour[i-17];
+    for i in hour_start_index..hour_end_index {
+        hour[i - hour_start_index] = msg[i] - 48;
+        hour_val = 10 * hour_val + hour[i - hour_start_index];
     }
 
     let mut minute_val = 0;
@@ -417,5 +480,6 @@ fn main() {
         ]
     );
     let signature: BigNum<18, Params2048> = BigNum::from_array([0x05c6e0981bbc3b57a3a1fced4d17da, 0xc91eb859d2829b53dc4e498135fff1, 0xcfaaf3614931fbd153dd4178298723, 0xeba33602ef3c36f2ac342a07998b04, 0x0b8f5b19985490400aaf8f203906dd, 0x34ec83e9af254e6bd9024b1275e44b, 0xcb0710065948ca3e4fc5ca85676716, 0xbc2d33b6c7a4f9cf6c46d5e63b6a40, 0x3a543d690a16366a4a46b88720c944, 0x42479ca91ed769178b4a5a17c139b7, 0x71f39517ba6eaa91d035d690265e8d, 0x235ff0a16468b337f77a9b75d1bb9a, 0x03b4a44f63c446c9d945b8f7febf52, 0xc24de09a1a355f94fe46346b7830bb, 0xcc49c7bbe646f78197054169e0787e, 0xad7871ecf1ab2d0956aa7cdfd7dd1b, 0x46b8fd8d0c49f1ce2eef7e4f817ff3, 0xbd]);
-    extractor_circuit(msg, msg_str, public_key, signature);
+    let delimiterIndices: [u64; 18] = [2, 4, 26, 38, 49, 51, 68, 79, 80, 96, 97, 104, 118, 124, 152, 165, 179, 184];
+    extractor_circuit(msg, msg_str, public_key, signature, delimiterIndices);
 }
