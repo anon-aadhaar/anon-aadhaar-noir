@@ -13,18 +13,18 @@ At this point, the following modules work:
 To run the entire circuit:
 
 1. cd aadhaar_qr_verifier
-2. nargo check
+2. nargo check --overwrite
 3. nargo test
 
 To run the RSA-SHA256 circuit:
 
 1. cd rsa-sha256
 2. noirup -v 0.32.0
-3. nargo check
+3. nargo check --overwrite
 4. nargo test
 
 And in each of the folders of hash_and_sign, poseidon, nullifier, timestamp, cds, signal:
 
 1. cd folder_name
-2. nargo check
+2. nargo check --overwrite
 3. nargo test
