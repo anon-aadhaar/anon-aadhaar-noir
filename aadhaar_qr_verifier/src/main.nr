@@ -285,21 +285,61 @@ fn extractor_circuit(
     let rsa: RSA2048 = RSA {};
     assert(rsa.verify_sha256_pkcs1v15(public_key, sha256_hash, signature));
 
+    // timestamp extraction
+    let mut year: [Field; 4] = [0; 4];
+    let mut month: [Field; 2] = [0; 2];
+    let mut day: [Field; 2] = [0; 2];
+    let mut hour: [Field; 2] = [0; 2];
+
+    let year_start_index = delimiterIndices[reference_id_position() - 1] + 5;
+    let year_end_index = year_start_index + 3;
+    let month_start_index = year_end_index + 1;
+    let month_end_index = month_start_index + 1;
+    let day_start_index = month_end_index + 1;
+    let day_end_index = day_start_index + 1;
+    let hour_start_index = day_end_index + 1;
+    let hour_end_index = hour_start_index + 1;
+
+    let mut year_val = 0;
+    for i in year_start_index..year_end_index {
+        year[i - year_start_index] = msg[i] - 48;
+        year_val = 10 * year_val + (year[i - year_start_index]);
+    }
+
+    let mut month_val = 0;
+    for i in month_start_index..month_end_index {
+        month[i - month_start_index] = msg[i] - 48;
+        month_val = month_val * 10 + month[i - month_start_index];
+    }
+
+    let mut day_val = 0;
+    for i in day_start_index..day_end_index {
+        day[i - day_start_index] = msg[i] - 48;
+        day_val = day_val * 10 + day[i - day_start_index];
+    }
+
+    let mut hour_val = 0;
+    for i in hour_start_index..hour_end_index {
+        hour[i - hour_start_index] = msg[i] - 48;
+        hour_val = 10 * hour_val + hour[i - hour_start_index];
+    }
+
+    let mut minute_val = 0;
+    let mut second_val = 0;
+
+    // Date of birth extraction 
     let mut birth_year_vec: [Field; 4] = [0; 4];
     let mut birth_month_vec: [Field; 2] = [0; 2];
     let mut birth_date_vec: [Field; 2] = [0; 2];
-    let year_data = 2024;
-    let month_data = 8;
-    let day_data = 7;
     let mut age = 0;
-    let birthday_start_index = delimiterIndices[dob_position() - 1] + 1; //39
-    let birthday_end_index = delimiterIndices[dob_position()]; //49
-    let birth_date_start_index = birthday_start_index; //39
-    let birth_date_end_index = birth_date_start_index + 1; //40
-    let birth_month_start_index = birth_date_end_index + 2; //42
-    let birth_month_end_index = birth_month_start_index + 1; //43
-    let birth_year_start_index = birth_month_end_index + 2; //45
-    let birth_year_end_index = birth_year_start_index + 3; //48 
+    let birthday_start_index = delimiterIndices[dob_position() - 1] + 1; 
+    let birthday_end_index = delimiterIndices[dob_position()]; 
+    let birth_date_start_index = birthday_start_index; 
+    let birth_date_end_index = birth_date_start_index + 1; 
+    let birth_month_start_index = birth_date_end_index + 2; 
+    let birth_month_end_index = birth_month_start_index + 1; 
+    let birth_year_start_index = birth_month_end_index + 2; 
+    let birth_year_end_index = birth_year_start_index + 3; 
     for i in birthday_start_index..birthday_end_index {
         if i >= birth_date_start_index & i <= birth_date_end_index {
             birth_date_vec[i-birth_date_start_index] = msg[i] - 48;
@@ -314,12 +354,12 @@ fn extractor_circuit(
     let birth_month_data = birth_month_vec[0] * 10 + birth_month_vec[1];
     let birth_year_data = birth_year_vec[0] * 1000 + birth_year_vec[1] * 100 + birth_year_vec[2] * 10 + birth_year_vec[3];
 
-    let age_by_year = year_data - birth_year_data - 1;
+    let age_by_year = year_val - birth_year_data - 1;
     let mut age = age_by_year;
-    if birth_month_data as u64 > month_data {
+    if birth_month_data as u64 > month_val as u64 {
         age += 1;
-    } else if birth_month_data as u64 == month_data {
-        if birth_date_data as u64 > day_data {
+    } else if birth_month_data as u64 == month_val as u64 {
+        if birth_date_data as u64 > day_val as u64 {
             age += 1;
         }
     }
@@ -391,48 +431,6 @@ fn extractor_circuit(
     }
     let expectedNullifier = nullifier_circuit(nullifierSeed, photo);
     assert(expectedNullifier != 0, "Computed Nullifier: {expected_nullifier}");
-
-    // timestamp extraction
-    let mut year: [Field; 4] = [0; 4];
-    let mut month: [Field; 2] = [0; 2];
-    let mut day: [Field; 2] = [0; 2];
-    let mut hour: [Field; 2] = [0; 2];
-
-    let year_start_index = delimiterIndices[reference_id_position() - 1] + 5;
-    let year_end_index = year_start_index + 3;
-    let month_start_index = year_end_index + 1;
-    let month_end_index = month_start_index + 1;
-    let day_start_index = month_end_index + 1;
-    let day_end_index = day_start_index + 1;
-    let hour_start_index = day_end_index + 1;
-    let hour_end_index = hour_start_index + 1;
-
-    let mut year_val = 0;
-    for i in year_start_index..year_end_index {
-        year[i - year_start_index] = msg[i] - 48;
-        year_val = 10 * year_val + (year[i - year_start_index]);
-    }
-
-    let mut month_val = 0;
-    for i in month_start_index..month_end_index {
-        month[i - month_start_index] = msg[i] - 48;
-        month_val = month_val * 10 + month[i - month_start_index];
-    }
-
-    let mut day_val = 0;
-    for i in day_start_index..day_end_index {
-        day[i - day_start_index] = msg[i] - 48;
-        day_val = day_val * 10 + day[i - day_start_index];
-    }
-
-    let mut hour_val = 0;
-    for i in hour_start_index..hour_end_index {
-        hour[i - hour_start_index] = msg[i] - 48;
-        hour_val = 10 * hour_val + hour[i - hour_start_index];
-    }
-
-    let mut minute_val = 0;
-    let mut second_val = 0;
 
     // Set maximum year and inclusion flags
     let maxYears = 2050;
