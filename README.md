@@ -14,7 +14,7 @@ To run the entire circuit:
 
 1. cd aadhaar_qr_verifier
 2. nargo check --overwrite
-3. nargo test
+3. nargo test --show-output
 
 To run the RSA-SHA256 circuit:
 

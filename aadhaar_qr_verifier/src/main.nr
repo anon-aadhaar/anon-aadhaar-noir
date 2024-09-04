@@ -431,6 +431,8 @@ fn extractor_circuit(
     }
     let expectedNullifier = nullifier_circuit(nullifierSeed, photo);
     assert(expectedNullifier != 0, "Computed Nullifier: {expected_nullifier}");
+    std::print("Computed Nullifier: ");
+    std::println(expectedNullifier);
 
     // Set maximum year and inclusion flags
     let maxYears = 2050;
@@ -453,6 +455,8 @@ fn extractor_circuit(
     );
 
     assert(timestamp != 0, "Non-zero timestamp computed: {timestamp}");
+    std::print("Timestamp computed: ");
+    std::println(timestamp);
 
     // Define a valid signalHash and its square
     let signalHash = 5;
