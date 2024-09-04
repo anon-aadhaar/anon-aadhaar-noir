@@ -29,7 +29,7 @@ And in each of the folders of hash_and_sign, poseidon, nullifier, timestamp, cds
 2. nargo check --overwrite
 3. nargo test
 
-Benchmarks:
+Benchmarks via the Barretenberg Backend:
 
 | Part of the Circuit | Proving Time | Verification Time |
 |-----------------|-----------------|-----------------|
