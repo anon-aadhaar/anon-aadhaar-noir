@@ -82,9 +82,6 @@ fn test_valid_timestamp_conversion() {
     let includeMinutes = true;
     let includeSeconds = true;
 
-    // Expected Unix timestamp for 2024-08-06 12:30:45 UTC
-    //let expectedTimestamp: Field = 1723252245; // Updated expected timestamp
-
     // Calculate the Unix timestamp using the circuit
     let timestamp = main(
         year,

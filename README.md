@@ -1,7 +1,7 @@
 # anon-aadhaar-noir
 Anon-Aadhaar protocol implementation in Noir
 
-At this point, the following modules work: 
+The following modules work: 
 
 1. SHA256 Hash
 2. RSA Signature Verification
@@ -28,3 +28,13 @@ And in each of the folders of hash_and_sign, poseidon, nullifier, timestamp, cds
 1. cd folder_name
 2. nargo check --overwrite
 3. nargo test
+
+Benchmarks:
+
+| Part of the Circuit | Proving Time | Verification Time |
+|-----------------|-----------------|-----------------|
+| RSA-SHA256    | 0.502s    | 0.064    |
+| Nullifier    |  0.611s   | 0.066s    |
+| Conditional Secrets    |  0.102s  |  0.061s   |
+| Timestamp    |   0.401s  |  0.057s  |
+| Signal    | 0.092s    | 0.065s    |
