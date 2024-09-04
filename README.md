@@ -38,3 +38,8 @@ Benchmarks via the Barretenberg Backend:
 | Conditional Secrets    |  0.102s  |  0.061s   |
 | Timestamp    |   0.401s  |  0.057s  |
 | Signal    | 0.092s    | 0.065s    |
+
+The Verification Cost of the Solidity Verifier of the entire circuit:
+Total Gas Cost:	2904342 gas
+transaction Cost:	2525514 gas 
+execution Cost:	2251848 gas 
