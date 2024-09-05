@@ -1,6 +1,6 @@
 [package]
 name = "noir_rsa"
-type = "lib"
+type = "bin"
 authors = [""]
 compiler_version = ">=0.32.0"
 

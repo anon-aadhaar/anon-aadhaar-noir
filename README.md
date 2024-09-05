@@ -23,7 +23,7 @@ To run the RSA-SHA256 circuit:
 3. nargo check --overwrite
 4. nargo test
 
-And in each of the folders of hash_and_sign, poseidon, nullifier, timestamp, cds, signal:
+And in each of the folders nullifier, timestamp, cds, signal:
 
 1. cd folder_name
 2. nargo check --overwrite
@@ -37,9 +37,11 @@ Benchmarks via the Barretenberg Backend:
 | Nullifier    |  0.611s   | 0.066s    |
 | Conditional Secrets    |  0.102s  |  0.061s   |
 | Timestamp    |   0.401s  |  0.057s  |
-| Signal    | 0.092s    | 0.065s    |
+| Signal    | 0.092s    | 0.065s    |  
 
-The Verification Cost of the Solidity Verifier of the entire circuit:
-Total Gas Cost:	2904342 gas
-transaction Cost:	2525514 gas 
-execution Cost:	2251848 gas 
+
+The Verification Cost of the Solidity Verifier of the entire Aadhaar_QR_Verifier circuit:  
+
+Total Gas Cost:	2904342 gas  
+Transaction Cost:	2525514 gas   
+Execution Cost:	2251848 gas   

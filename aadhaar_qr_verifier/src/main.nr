@@ -332,14 +332,14 @@ fn extractor_circuit(
     let mut birth_month_vec: [Field; 2] = [0; 2];
     let mut birth_date_vec: [Field; 2] = [0; 2];
     let mut age = 0;
-    let birthday_start_index = delimiterIndices[dob_position() - 1] + 1; 
-    let birthday_end_index = delimiterIndices[dob_position()]; 
-    let birth_date_start_index = birthday_start_index; 
-    let birth_date_end_index = birth_date_start_index + 1; 
-    let birth_month_start_index = birth_date_end_index + 2; 
-    let birth_month_end_index = birth_month_start_index + 1; 
-    let birth_year_start_index = birth_month_end_index + 2; 
-    let birth_year_end_index = birth_year_start_index + 3; 
+    let birthday_start_index = delimiterIndices[dob_position() - 1] + 1;
+    let birthday_end_index = delimiterIndices[dob_position()];
+    let birth_date_start_index = birthday_start_index;
+    let birth_date_end_index = birth_date_start_index + 1;
+    let birth_month_start_index = birth_date_end_index + 2;
+    let birth_month_end_index = birth_month_start_index + 1;
+    let birth_year_start_index = birth_month_end_index + 2;
+    let birth_year_end_index = birth_year_start_index + 3;
     for i in birthday_start_index..birthday_end_index {
         if i >= birth_date_start_index & i <= birth_date_end_index {
             birth_date_vec[i-birth_date_start_index] = msg[i] - 48;
