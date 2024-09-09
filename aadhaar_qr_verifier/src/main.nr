@@ -183,9 +183,7 @@ fn timestamp_circuit(
     includeSeconds: bool
 ) -> Field {
     // Ensure the input values are within valid ranges by casting to integers
-    //assert(year as i32 >= 1970);
     assert(year as i32 <= maxYears as i32);
-    //assert(month as i32 >= 1);
     assert(month as i32 <= 12);
     assert(day as i32 >= 1);
     assert(day as i32 <= 31);
@@ -461,7 +459,6 @@ fn extractor_circuit(
     // Define a valid signalHash and its square
     let signalHash = 5;
     let signalHashSquare = 25;
-    // Call the circuit with valid inputs
     signal_circuit(signalHash, signalHashSquare);
 }
 
