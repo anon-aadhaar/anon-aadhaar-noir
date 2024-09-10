@@ -12,9 +12,7 @@ fn main(
     includeSeconds: pub bool
 ) -> pub Field {
     // Ensure the input values are within valid ranges by casting to integers
-    //assert(year as i32 >= 1970);
     assert(year as i32 <= maxYears as i32);
-    //assert(month as i32 >= 1);
     assert(month as i32 <= 12);
     assert(day as i32 >= 1);
     assert(day as i32 <= 31);
@@ -96,8 +94,6 @@ fn test_valid_timestamp_conversion() {
         includeSeconds
     );
 
-    // Use assertions to validate the timestamp, effectively "printing" it
-    //assert(timestamp == expectedTimestamp, "Computed timestamp is: {timestamp}");
     assert(timestamp != 0, "Non-zero timestamp computed: {timestamp}");
 }
 
@@ -146,9 +142,6 @@ fn test_timestamp_with_actual_data() {
     let includeMinutes = true;
     let includeSeconds = true;
 
-    // Expected Unix timestamp for 2024-08-06 12:30:45 UTC
-    //let expectedTimestamp: Field = 1723252245; // Updated expected timestamp
-
     // Calculate the Unix timestamp using the circuit
     let timestamp = main(
         year_val,
@@ -163,7 +156,7 @@ fn test_timestamp_with_actual_data() {
         includeSeconds
     );
 
-    // Use assertions to validate the timestamp, effectively "printing" it
-    //assert(timestamp == expectedTimestamp, "Computed timestamp is: {timestamp}");
     assert(timestamp != 0, "Non-zero timestamp computed: {timestamp}");
+    std::print("Timestamp: ");
+    std::println(timestamp);
 }
