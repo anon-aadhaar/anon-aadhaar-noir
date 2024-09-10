@@ -1,29 +1,20 @@
 use dep::poseidon::bn254;
 
-/// @title Nullifier
-/// @notice Computes the nullifier for an Aadhaar identity
-/// @input photo The photo of the user with SHA padding
-/// @output nullifier = hash(nullifierSeed, hash(photo[0..16]), hash(photo[16..32]))
-
 fn main(nullifierSeed: Field, photo: [Field; 32]) -> pub Field {
     // Initialize arrays to store slices
     let mut first16: [Field; 16] = [0; 16];
     let mut last16: [Field; 16] = [0; 16];
 
-    // Populate first16 array using a for loop
     for i in 0..16 {
         first16[i] = photo[i];
     }
 
-    // Populate last16 array using a for loop
     for i in 0..16 {
         last16[i] = photo[i + 16];
     }
 
-    // Hash the first 16 elements of the photo
     let first16Hash = bn254::hash_16(first16);
 
-    // Hash the last 16 elements of the photo
     let last16Hash = bn254::hash_16(last16);
 
     // Compute the final nullifier
@@ -67,4 +58,6 @@ fn test_nullifier_with_data() {
     // Compute the expected output
     let expectedNullifier = main(nullifierSeed, photo);
     assert(expectedNullifier != 0, "Computed Nullifier: {expected_nullifier}");
+    std::print("Nullifier: ");
+    std::println(expectedNullifier);
 }
