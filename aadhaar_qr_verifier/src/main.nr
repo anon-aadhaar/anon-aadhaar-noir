@@ -268,6 +268,7 @@ fn nullifier_circuit(nullifierSeed: Field, photo: [Field; 32]) -> Field {
 }
 
 fn signal_circuit(signalHash: Field, signalHashSquare: Field) {
+    // Dummy square to prevent signal tampering (in rare cases where non-constrained inputs are ignored)
     // Enforce the constraint that signalHashSquare is the square of signalHash
     assert(signalHashSquare == signalHash * signalHash);
 }
@@ -281,9 +282,10 @@ fn extractor_circuit(
 ) {
     let sha256_hash: [u8; 32] = dep::std::hash::sha256(msg_str.as_bytes());
     let rsa: RSA2048 = RSA {};
+    // Verify the RSA signature
     assert(rsa.verify_sha256_pkcs1v15(public_key, sha256_hash, signature));
 
-    // timestamp extraction
+    // Timestamp extraction
     let mut year: [Field; 4] = [0; 4];
     let mut month: [Field; 2] = [0; 2];
     let mut day: [Field; 2] = [0; 2];
@@ -352,6 +354,7 @@ fn extractor_circuit(
     let birth_month_data = birth_month_vec[0] * 10 + birth_month_vec[1];
     let birth_year_data = birth_year_vec[0] * 1000 + birth_year_vec[1] * 100 + birth_year_vec[2] * 10 + birth_year_vec[3];
 
+    // Calculate the Age
     let age_by_year = year_val - birth_year_data - 1;
     let mut age = age_by_year;
     if birth_month_data as u64 > month_val as u64 {
@@ -362,9 +365,11 @@ fn extractor_circuit(
         }
     }
 
+    // Calculate the Gender
     let gender_index = delimiterIndices[gender_position() - 1] + 1;
     let gender_data = msg[gender_index] - 65;
 
+    // Calculate the Pincode of the Address
     let pincode_start_index = delimiterIndices[pincode_position() - 1] + 1;
     let pincode_end_index = delimiterIndices[pincode_position()];
     let mut pincode_vec: [Field; 6] = [0; 6];
@@ -377,6 +382,7 @@ fn extractor_circuit(
         pincode_data = pincode_data * 10 + i;
     }
 
+    // Calculate the State of the Address
     let state_start_index = delimiterIndices[state_position() - 1] + 1;
     let state_end_index = delimiterIndices[state_position()];
 
@@ -416,6 +422,7 @@ fn extractor_circuit(
         state
     );
 
+    // Calculate nullifier
     let nullifierSeed: Field = 12345678; // Example seed
     let mut photo_vec: [Field; 952] = [0; 952];
     let photo_start_index = delimiterIndices[photo_position() - 1] + 1;
