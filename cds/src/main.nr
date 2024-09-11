@@ -73,6 +73,8 @@ fn test_valid_reveal_constraints_with_data() {
     let month_data = 8;
     let day_data = 7;
     let mut age = 0;
+
+    // Calculate the full birthday consisting of the birth_day, birth_month, and birth_year
     for i in 39..49 {
         if i >= 39 & i <= 40 {
             birth_date_vec[i-39] = msg[i] - 48;
@@ -87,6 +89,7 @@ fn test_valid_reveal_constraints_with_data() {
     let birth_month_data = birth_month_vec[0] * 10 + birth_month_vec[1];
     let birth_year_data = birth_year_vec[0] * 1000 + birth_year_vec[1] * 100 + birth_year_vec[2] * 10 + birth_year_vec[3];
 
+    // Calculate the Age
     let age_by_year = year_data - birth_year_data - 1;
     let mut age = age_by_year;
     if birth_month_data as u64 > month_data {
@@ -97,8 +100,10 @@ fn test_valid_reveal_constraints_with_data() {
         }
     }
 
+    // Calculate the Gender
     let gender_data = msg[50] - 65;
 
+    // Calculate the Pincode of the address
     let mut pincode_vec: [Field; 6] = [0; 6];
     for i in 98..104 {
         pincode_vec[i-98] = msg[i] - 48;
@@ -109,6 +114,7 @@ fn test_valid_reveal_constraints_with_data() {
         pincode_data = pincode_data * 10 + i;
     }
 
+    // Calculate the State of the address
     let mut state_vec: [Field; 5] = [0; 5];
     let mut state_data = 0;
     for i in 119..124 {
