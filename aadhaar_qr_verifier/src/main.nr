@@ -346,7 +346,7 @@ fn extractor_circuit(
         } else if i >= birth_month_start_index & i <= birth_month_end_index {
             birth_month_vec[i-birth_month_start_index] = msg[i] - 48;
         } else if i >= birth_year_start_index & i <= birth_year_end_index {
-            birth_year_vec[i-birth_date_start_index] = msg[i] - 48;
+            birth_year_vec[i-birth_year_start_index] = msg[i] - 48;
         }
     }
 
