@@ -292,13 +292,13 @@ fn extractor_circuit(
     let mut hour: [Field; 2] = [0; 2];
 
     let year_start_index = delimiterIndices[reference_id_position() - 1] + 5;
-    let year_end_index = year_start_index + 3;
-    let month_start_index = year_end_index + 1;
-    let month_end_index = month_start_index + 1;
-    let day_start_index = month_end_index + 1;
-    let day_end_index = day_start_index + 1;
-    let hour_start_index = day_end_index + 1;
-    let hour_end_index = hour_start_index + 1;
+    let year_end_index = year_start_index + year.len() as u64;
+    let month_start_index = year_end_index;
+    let month_end_index = month_start_index + month.len() as u64;
+    let day_start_index = month_end_index;
+    let day_end_index = day_start_index + day.len() as u64;
+    let hour_start_index = day_end_index;
+    let hour_end_index = hour_start_index + hour.len() as u64;
 
     let mut year_val = 0;
     for i in year_start_index..year_end_index {
