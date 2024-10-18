@@ -1,8 +1,0 @@
-[package]
-name = "poseidon"
-type = "lib"
-authors = [""]
-compiler_version = ">=0.30.0"
-
-[dependencies]
-hash_utils = { path = "../hash_utils" }
