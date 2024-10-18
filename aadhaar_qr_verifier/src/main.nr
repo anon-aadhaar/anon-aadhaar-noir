@@ -1,11 +1,7 @@
-use dep::poseidon::bn254;
 use dep::bignum::BigNum;
 use dep::bignum::runtime_bignum::BigNumInstance;
 use dep::bignum::runtime_bignum::BigNumTrait;
 use dep::bignum::runtime_bignum::BigNumInstanceTrait;
-use dep::bignum::runtime_bignum::BigNumParamsTrait;
-use dep::bignum::utils::u60_representation::U60Repr;
-use dep::bignum::utils::arrayX::ArrayX;
 use dep::bignum::fields::Params2048;
 use dep::bignum::fields::Params1024;
 
