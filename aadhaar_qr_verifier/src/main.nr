@@ -1,17 +1,12 @@
-mod utils;
-mod position;
 mod tests;
-mod nullifier;
-mod timestamp;
-mod cds;
 mod signature_verifier;
-mod signal;
-use utils::QRData;
-use nullifier::nullifier_circuit;
-use cds::cds_circuit;
-use signal::signal_circuit;
 use signature_verifier::verify_signature;
-use timestamp::timestamp_circuit;
+pub mod helpers;
+
+use helpers::{
+    nullifier::nullifier_circuit, signal::signal_circuit, cds::cds_circuit,
+    timestamp::{timestamp_circuit, time_stamp_extractor}, QRData,
+};
 
 global RSA_EXPONENT: u32 = 65537;
 global MAX_YEARS: Field = 2050;
@@ -50,7 +45,7 @@ pub fn extractor_circuit(
     verify_signature(msg_str, signature_limbs, modulus_limbs, redc_limbs);
 
     let (year_val, month_val, day_val, hour_val, minute_val, second_val, age, gender_data, pincode_data, state_data) =
-        timestamp::time_stamp_extractor(delimiterIndices, msg);
+        time_stamp_extractor(delimiterIndices, msg);
 
     // Define a valid QRData instance
     let qrDataExtractor =

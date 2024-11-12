@@ -1,4 +1,4 @@
-use crate::utils::QRData;
+use crate::helpers::QRData;
 
 pub fn cds_circuit(
     revealAgeAbove18: Field,

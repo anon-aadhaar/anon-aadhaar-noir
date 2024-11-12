@@ -1,5 +1,5 @@
-use crate::position::photo_position;
-use crate::utils::bytes_to_int_chunks;
+use crate::helpers::photo_position;
+use crate::helpers::bytes_to_int_chunks;
 use crate::PHOTO_END_INDEX;
 
 /// @title Nullifier
