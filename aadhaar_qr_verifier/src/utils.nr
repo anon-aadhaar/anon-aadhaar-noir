@@ -1,8 +1,8 @@
 pub struct QRData {
-    ageAbove18: Field,
-    gender: Field,
-    pinCode: Field,
-    state: Field,
+    pub ageAbove18: Field,
+    pub gender: Field,
+    pub pinCode: Field,
+    pub state: Field,
 }
 
 pub fn bytes_to_int_chunks(bytes: [Field; 967]) -> [Field; 32] {

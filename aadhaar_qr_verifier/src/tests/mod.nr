@@ -128,6 +128,9 @@ mod test {
 
         let delimiterIndices: [u64; 18] =
             [2, 4, 26, 38, 49, 51, 68, 79, 80, 96, 97, 104, 118, 124, 152, 165, 179, 184];
+        let nullifierSeed: Field = 12345678; // Example seed
+        let signalHash = 10;
+
         extractor_circuit(
             msg,
             msg_str,
@@ -135,6 +138,12 @@ mod test {
             modulus_limbs,
             redc_limbs,
             delimiterIndices,
+            1,
+            1,
+            1,
+            1,
+            nullifierSeed,
+            signalHash,
         );
     }
 }
