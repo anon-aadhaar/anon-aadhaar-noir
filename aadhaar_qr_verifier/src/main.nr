@@ -1,9 +1,18 @@
 mod utils;
 mod position;
 mod tests;
+mod nullifier;
+mod timestamp;
+mod cds;
+mod signal;
 use dep::bignum::{params::BigNumParams, RuntimeBigNum};
 
-use utils::QRData;
+use utils::{QRData, bytes_to_int_chunks};
+use nullifier::nullifier_circuit;
+use timestamp::timestamp_circuit;
+use cds::cds_circuit;
+use signal::signal_circuit;
+
 use position::{
     gender_position, reference_id_position, dob_position, pincode_position, state_position,
     photo_position,
@@ -11,154 +20,11 @@ use position::{
 
 use dep::rsa::{rsa::verify_sha256_pkcs1v15, types::RBN2048};
 
-fn cds_circuit(
-    revealAgeAbove18: Field,
-    revealGender: Field,
-    revealPinCode: Field,
-    revealState: Field,
-    qrDataExtractor: QRData,
-    ageAbove18: Field,
-    gender: Field,
-    pinCode: Field,
-    state: Field,
-) {
-    // Enforce binary constraints on reveal signals
-    assert(revealAgeAbove18 * (revealAgeAbove18 - 1) == 0);
-    assert(revealGender * (revealGender - 1) == 0);
-    assert(revealPinCode * (revealPinCode - 1) == 0);
-    assert(revealState * (revealState - 1) == 0);
-
-    // Assign extracted values conditionally based on the reveal signals
-    assert(ageAbove18 == revealAgeAbove18 * qrDataExtractor.ageAbove18);
-    assert(gender == revealGender * qrDataExtractor.gender);
-    assert(pinCode == revealPinCode * qrDataExtractor.pinCode);
-    assert(state == revealState * qrDataExtractor.state);
-}
-
-// Define the main function for converting date and time to a Unix timestamp
-fn timestamp_circuit(
-    year: Field,
-    month: Field,
-    day: Field,
-    hour: Field,
-    minute: Field,
-    second: Field,
-    maxYears: Field,
-    includeHours: bool,
-    includeMinutes: bool,
-    includeSeconds: bool,
-) -> Field {
-    // Ensure the input values are within valid ranges by casting to integers
-    assert(year as i32 <= maxYears as i32);
-    assert(month as i32 <= 12);
-    assert(day as i32 >= 1);
-    assert(day as i32 <= 31);
-    assert(hour as i32 >= 0);
-    assert(hour as i32 <= 23);
-    assert(minute as i32 >= 0);
-    assert(minute as i32 <= 59);
-    assert(second as i32 >= 0);
-    assert(second as i32 <= 59);
-
-    // Days till the start of each month in a non-leap year
-    let daysTillPreviousMonth: [i64; 12] = [0, 31, 59, 90, 120, 151, 181, 212, 243, 273, 304, 334];
-
-    // Calculate the number of years and leap years since 1970
-    let yearsSinceEpoch: i64 = (year as i64) - 1970;
-    let leapYears: i64 = (yearsSinceEpoch + 1) / 4;
-
-    // Calculate days passed in the current year
-    let mut daysPassedInCurrentYear: i64 = (day as i64) - 1;
-    for i in 0..12 {
-        if (month as i32) - 1 > i as i32 {
-            daysPassedInCurrentYear += daysTillPreviousMonth[i];
-        }
-    }
-
-    // Add an extra day if it's a leap year and the date is after February
-    if (month as i32) > 2 & ((year as i32 - 1972) % 4 == 0) {
-        daysPassedInCurrentYear += 1;
-    }
-
-    // Calculate total days passed since Unix epoch
-    let totalDaysPassed: i64 = yearsSinceEpoch * 365 + leapYears + daysPassedInCurrentYear;
-
-    // Calculate the Unix timestamp
-    let mut timestamp: i64 = totalDaysPassed * 86400;
-
-    // Add hours, minutes, and seconds if included
-    if includeHours {
-        timestamp += (hour as i64) * 3600;
-    }
-    if includeMinutes {
-        timestamp += (minute as i64) * 60;
-    }
-    if includeSeconds {
-        timestamp += (second as i64);
-    }
-
-    // Output the final timestamp
-    timestamp as Field
-}
-
-/// @title Nullifier
-/// @notice Computes the nullifier for an Aadhaar identity
-/// @input photo The photo of the user with SHA padding
-/// @output nullifier = hash(nullifierSeed, hash(photo[0..16]), hash(photo[16..32]))
-
-fn nullifier_circuit(nullifierSeed: Field, photo: [Field; 32]) -> Field {
-    // Initialize arrays to store slices
-    let mut first16: [Field; 16] = [0; 16];
-    let mut last16: [Field; 16] = [0; 16];
-
-    // Populate first16 array using a for loop
-    for i in 0..16 {
-        first16[i] = photo[i];
-    }
-
-    // Populate last16 array using a for loop
-    for i in 0..16 {
-        last16[i] = photo[i + 16];
-    }
-
-    // Hash the first 16 elements of the photo
-    let first16Hash = std::hash::poseidon::bn254::hash_16(first16);
-
-    // Hash the last 16 elements of the photo
-    let last16Hash = std::hash::poseidon::bn254::hash_16(last16);
-
-    // Compute the final nullifier
-    let out = std::hash::poseidon::bn254::hash_3([nullifierSeed, first16Hash, last16Hash]);
-
-    out as Field
-}
-
-fn bytes_to_int_chunks(bytes: [Field; 967]) -> [Field; 32] {
-    let max_bytes_in_field = 31;
-    // Math.ceil(bytes.length / maxBytesInField)
-    // Math.cell(967/32)
-    let num_chunks = 32;
-    let mut ints = [0; 32];
-
-    for i in 0..num_chunks {
-        let mut int_sum: Field = 0;
-        for j in 0..max_bytes_in_field {
-            let idx = max_bytes_in_field * i + j;
-            if idx < bytes.len() {
-                int_sum += (bytes[idx] * 256.pow_32(j as Field));
-            }
-        }
-        ints[i] = int_sum;
-    }
-
-    ints
-}
-
-fn signal_circuit(signalHash: Field, signalHashSquare: Field) {
-    // Dummy square to prevent signal tampering (in rare cases where non-constrained inputs are ignored)
-    // Enforce the constraint that signalHashSquare is the square of signalHash
-    assert(signalHashSquare == signalHash * signalHash);
-}
+// todo():
+// 1. type of public_key should be  BNInst2048
+// 2. signature type should be BigNum<18, Params2048>
+// 3. remove all hardcoded inputs
+// 4. selective disclosure
 
 pub fn extractor_circuit(
     msg: [Field; 1152], // we need to have only one circuit for these
