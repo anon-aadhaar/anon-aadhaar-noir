@@ -2,6 +2,7 @@ pub mod nullifier;
 pub mod signal;
 pub mod cds;
 pub mod timestamp;
+pub mod extractor;
 
 pub struct QRData {
     pub ageAbove18: Field,
