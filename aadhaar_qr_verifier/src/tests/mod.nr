@@ -137,7 +137,7 @@ mod test {
         let nullifierSeed: Field = 12345678; // Example seed
         let signalHash = 10;
 
-        aadhar_qr_verifier(
+        let outputs = aadhar_qr_verifier(
             msg_vector,
             1152,
             delimiter,
@@ -151,6 +151,13 @@ mod test {
             nullifierSeed,
             signalHash,
         );
+
+        // all of these result values are extracted from circom codebase.
+        assert(outputs.age, "Age should be above 18");
+        assert(outputs.gender == 77, "M as Ascii");
+        assert(outputs.pinCode == 110051, "Pincode should be 110051");
+        assert(outputs.state == 452723500356, "State should be 452723500356");
+        assert(outputs.timestamp == 1713555000, "Timestamp should be 1713555000");
     }
 }
 
