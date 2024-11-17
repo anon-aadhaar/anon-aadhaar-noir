@@ -1,19 +1,17 @@
 use crate::{DELIMITER_INDICES_LENGTH, MAX_DATA_LENGTH, QRData};
-use crate::helpers::{photo_position, bytes_array_to_int, dob_position};
-use crate::MAX_YEARS;
-use crate::INCLUDE_HOURS;
-use crate::INCLUDE_MINUTES;
-use crate::INCLUDE_SECONDS;
-use crate::IST_OFFSET;
-use super::gender_position;
-use super::pincode_position;
-use super::state_position;
-use super::max_field_byte_size;
+use crate::helpers::{
+    photo_position, bytes_array_to_int, dob_position, gender_position, pincode_position,
+    state_position,
+};
+use crate::{
+    MAX_YEARS, MAX_FIELD_BYTE_SIZE, INCLUDE_HOURS, INCLUDE_MINUTES, INCLUDE_SECONDS, IST_OFFSET,
+};
+use nodash::array::pack_bytes;
 
 pub fn extractor(
     qrDataPadded: QRData,
     delimiterIndices: [u8; DELIMITER_INDICES_LENGTH],
-) -> (u32, u32, u32, u32, Field) {
+) -> (u32, u32, u32, Field, Field) {
     let qr_data_arr = qrDataPadded.storage();
     let mut n255_filter: [u32; MAX_DATA_LENGTH + 1] = [0; MAX_DATA_LENGTH + 1];
     let mut nDelimitedData: [u32; MAX_DATA_LENGTH] = [0; MAX_DATA_LENGTH];
@@ -246,28 +244,19 @@ pub fn state_extractor(
     nDelimitedData: [u32; MAX_DATA_LENGTH],
     delimiterIndices: [u8; DELIMITER_INDICES_LENGTH],
     extractPosition: u64,
-) -> u32 {
+) -> Field {
     let startDelimiterIndex = delimiterIndices[(extractPosition - 1)] as u32;
     let endDelimiterIndex = delimiterIndices[extractPosition] as u32;
 
-    let mut state_vector: Vec<u32> = Vec::new();
-    let max_byte_size = max_field_byte_size();
-    let bytelenth = (max_byte_size + 1) as u32;
+    assert(nDelimitedData[startDelimiterIndex] == (extractPosition * 255) as u32);
+    let mut state_data_array: [u8; MAX_FIELD_BYTE_SIZE] = [0; MAX_FIELD_BYTE_SIZE];
 
-    for i in startDelimiterIndex..endDelimiterIndex {
-        state_vector.push(nDelimitedData[i]);
+    // ignore the first byte since we don;t need to contruct the state data in packed field
+    let mut index = 0;
+    for i in (startDelimiterIndex + 1)..endDelimiterIndex {
+        state_data_array[index] = nDelimitedData[i] as u8;
+        index += 1;
     }
-    for _ in endDelimiterIndex..endDelimiterIndex + bytelenth {
-        state_vector.push(0);
-    }
-
-    assert(state_vector.get(0) == (extractPosition * 255) as u32);
-
-    let end_delimitor_val = nDelimitedData[endDelimiterIndex];
-    assert(end_delimitor_val == ((extractPosition + 1) * 255) as u32);
-
-    // TODO (VIKAS): Fix the pack bytes fn
-    // let ans = pack_bytes(array, 32);
-    // println(ans);
-    0
+    let state_packed_bytes = pack_bytes(state_data_array);
+    state_packed_bytes[0]
 }

@@ -4,7 +4,6 @@ use signature_verifier::verify_signature;
 pub mod helpers;
 
 use helpers::{nullifier::nullifier_circuit, signal::signal_circuit, extractor::extractor};
-use bignum::params::BigNumParams;
 
 global RSA_EXPONENT: u32 = 65537;
 global MAX_YEARS: Field = 2032;
@@ -15,8 +14,6 @@ global PHOTO_END_INDEX: u64 = 1152;
 global MAX_DATA_LENGTH: u32 = 512 * 3;
 global DELIMITER_INDICES_LENGTH: u32 = 18;
 global LIMBS_SIZE: u32 = 18;
-global KEY_SIZE = 2048;
-global PHOTO_SIZE: u32 = 32;
 global IST_OFFSET: u32 = 19800;
 global MAX_FIELD_BYTE_SIZE: u32 = 32;
 global MAX_BYTES_IN_FIELD: u32 = 31;
@@ -62,8 +59,6 @@ pub fn aadhar_qr_verifier(
 
     let ageAbove18 = age > 18;
 
-    // TODO RETURN THIS VALUE INSTEAD OF PRINTING
-    // todo return age
     if revealAgeAbove18 {
         println(ageAbove18);
     }
