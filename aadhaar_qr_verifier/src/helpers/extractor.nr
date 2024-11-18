@@ -1,13 +1,11 @@
-use crate::helpers::{
-    photo_position, bytes_array_to_int, dob_position, gender_position, pincode_position,
-    state_position,
-};
 use crate::{
-    DELIMITER_INDICES_LENGTH, MAX_DATA_LENGTH, QRData, MAX_YEARS, MAX_FIELD_BYTE_SIZE,
-    INCLUDE_HOURS, INCLUDE_MINUTES, INCLUDE_SECONDS, IST_OFFSET,
+    helpers::{
+        bytes_array_to_int, dob_position, gender_position, photo_position, pincode_position,
+        state_position,
+    }, DELIMITER_INDICES_LENGTH, INCLUDE_HOURS, INCLUDE_MINUTES, INCLUDE_SECONDS, IST_OFFSET,
+    MAX_DATA_LENGTH, MAX_FIELD_BYTE_SIZE, MAX_PHOTO_BYTES, MAX_YEARS, QRData,
 };
-use crate::MAX_PHOTO_BYTES;
-use super::pack_bytes;
+use nodash::pack_bytes;
 
 pub fn extractor(
     qrDataPadded: QRData,
@@ -92,7 +90,6 @@ pub fn date_extractor(nDelimitedData: [u32; MAX_DATA_LENGTH]) -> (u32, u32, u32,
         ],
         4,
     );
-
     let month = bytes_array_to_int([nDelimitedData[13] as u8, nDelimitedData[14] as u8], 2);
     let day = bytes_array_to_int([nDelimitedData[15] as u8, nDelimitedData[16] as u8], 2);
     let hour = bytes_array_to_int([nDelimitedData[17] as u8, nDelimitedData[18] as u8], 2);
@@ -100,7 +97,6 @@ pub fn date_extractor(nDelimitedData: [u32; MAX_DATA_LENGTH]) -> (u32, u32, u32,
     (year, month, day, hour)
 }
 
-// Define the main function for converting date and time to a Unix timestamp
 fn timestamp_extractor(
     year: Field,
     month: Field,
@@ -113,52 +109,47 @@ fn timestamp_extractor(
     includeMinutes: bool,
     includeSeconds: bool,
 ) -> Field {
-    // Ensure the input values are within valid ranges by casting to integers
     assert(year as u32 >= 1970);
     assert(year as u32 <= maxYears as u32);
-
     assert(month as u32 >= 1);
     assert(month as u32 <= 12);
-
     assert(day as u32 >= 1);
     assert(day as u32 <= 31);
-
     assert(hour as u32 >= 0);
     assert(hour as u32 <= 23);
-
     assert(minute as u32 >= 0);
     assert(minute as u32 <= 59);
-
     assert(second as u32 >= 0);
     assert(second as u32 <= 59);
 
-    // Days till the start of each month in a non-leap year
+    // Days till the start of each month in a non-leap year (same as Circom)
     let daysTillPreviousMonth: [i64; 12] = [0, 31, 59, 90, 120, 151, 181, 212, 243, 273, 304, 334];
 
-    // Calculate the number of years and leap years since 1970
     let yearsSinceEpoch: i64 = (year as i64) - 1970;
-    let leapYears: i64 = (yearsSinceEpoch + 1) / 4;
+    let baseDays: i64 = yearsSinceEpoch * 365;
 
-    // Calculate days passed in the current year
-    let mut daysPassedInCurrentYear: i64 = (day as i64) - 1;
-    for i in 0..12 {
-        if (month as i32) - 1 > i as i32 {
-            daysPassedInCurrentYear += daysTillPreviousMonth[i];
-        }
+    let mut totalDays: i64 = baseDays + (day as i64) - 1;
+
+    let currentMonth = month as i64;
+    if currentMonth > 1 {
+        totalDays += daysTillPreviousMonth[(currentMonth - 1)];
     }
 
-    // Add an extra day if it's a leap year and the date is after February
-    if (month as i32) > 2 & ((year as i32 - 1972) % 4 == 0) {
-        daysPassedInCurrentYear += 1;
+    let mut leapDays: i64 = 0;
+
+    if year as i64 > 1972 {
+        leapDays += ((year as i64 - 1972 - 1) / 4) + 1;
     }
 
-    // Calculate total days passed since Unix epoch
-    let totalDaysPassed: i64 = yearsSinceEpoch * 365 + leapYears + daysPassedInCurrentYear;
+    let isCurrentYearLeap = (year as i64 >= 1972) & ((year as i64 - 1972) % 4 == 0);
+    if isCurrentYearLeap & currentMonth > 2 {
+        leapDays += 1;
+    }
 
-    // Calculate the Unix timestamp
-    let mut timestamp: i64 = totalDaysPassed * 86400;
+    totalDays += leapDays;
 
-    // Add hours, minutes, and seconds if included
+    let mut timestamp: i64 = totalDays * 86400;
+
     if includeHours {
         timestamp += (hour as i64) * 3600;
     }
@@ -166,11 +157,10 @@ fn timestamp_extractor(
         timestamp += (minute as i64) * 60;
     }
     if includeSeconds {
-        timestamp += (second as i64);
+        timestamp += second as i64;
     }
 
-    // Output the final timestamp with ist offset
-    (timestamp as Field - IST_OFFSET as Field)
+    (timestamp as Field - IST_OFFSET) // Output the final timestamp with ist offset
 }
 
 fn age_and_gender_extractor(

@@ -1,19 +1,19 @@
+pub mod helpers;
+
 mod tests;
 mod signature_verifier;
 use signature_verifier::verify_signature;
-pub mod helpers;
-
 use helpers::{nullifier::nullifier_circuit, signal::signal_circuit, extractor::extractor};
 
 global RSA_EXPONENT: u32 = 65537;
 global MAX_YEARS: Field = 2032;
 global INCLUDE_HOURS: bool = true;
-global INCLUDE_MINUTES: bool = true;
-global INCLUDE_SECONDS: bool = true;
+global INCLUDE_MINUTES: bool = false;
+global INCLUDE_SECONDS: bool = false;
 global MAX_DATA_LENGTH: u32 = 512 * 3;
 global DELIMITER_INDICES_LENGTH: u32 = 18;
 global LIMBS_SIZE: u32 = 18;
-global IST_OFFSET: u32 = 19800;
+global IST_OFFSET: Field = 19800;
 global MAX_FIELD_BYTE_SIZE: u32 = 32;
 global MAX_BYTES_IN_FIELD: u32 = 31;
 global MAX_PHOTO_BYTES: u32 = MAX_BYTES_IN_FIELD * MAX_FIELD_BYTE_SIZE;

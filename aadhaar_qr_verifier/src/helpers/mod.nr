@@ -2,32 +2,6 @@ pub mod nullifier;
 pub mod signal;
 pub mod extractor;
 
-pub fn pack_bytes<let N: u32>(bytes: [u8; N]) -> [Field; N / 31 + 1] {
-    let max_bytes_in_field = 31;
-    let num_chunks = N / 31 + 1;
-    let mut ints = [0 as Field; N / 31 + 1];
-
-    // Precompute powers to ensure consistency
-    let mut powers = [1 as Field; 31];
-    for j in 1..31 {
-        powers[j] = powers[j - 1] * 256;
-    }
-
-    for i in 0..num_chunks {
-        let mut int_sum: Field = 0;
-        for j in 0..max_bytes_in_field {
-            let idx = max_bytes_in_field * i + j;
-            if idx < N {
-                // Use precomputed powers instead of direct power calculation
-                int_sum += (bytes[idx] as Field) * powers[j];
-            }
-        }
-        ints[i] = int_sum;
-    }
-
-    ints
-}
-
 // Position/order (not index) of fields in the data
 pub fn reference_id_position() -> u64 {
     2

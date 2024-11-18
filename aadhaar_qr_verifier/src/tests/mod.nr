@@ -1,74 +1,79 @@
-mod test {
+mod tests {
     use crate::aadhar_qr_verifier;
     use crate::MAX_DATA_LENGTH;
 
     #[test]
     fn test_aadhar_qr_verifier() {
-        let modulus_limbs = [
-            0xcb9a7732071a1ec896e58500e6964b,
-            0x591f624c2c8e8f46225415de4deb70,
-            0xd0466b38cd631c4b767ae5b674d72,
-            0xfad251739852ebfc515bb87cabc88,
-            0x995d31bd29afd33ced28cb89652c03,
-            0x9f2d673c75b6e081c2b39755f244bf,
-            0xa8df137ad3c54e72e3d83fc9f68279,
-            0xcc15c0a82416cb28c91549e2504814,
-            0x1b0e4dacb94f050792d858c8513883,
-            0x4d9fc8fe863ee5913e277659f21522,
-            0x5b35e0b7d42d2dd9c3367762207e9e,
-            0xca525419be4855a3bbc9b7732bc7fb,
-            0x48adda99a4a45c675813f826418784,
-            0x4d410ac97f9d2dd5a15660d617f727,
-            0xee2ee57ff1250214758a4906f9a716,
-            0x3d60cf4842c5a1d92aeffb3b5a4264,
-            0xd4612ecea5b7cb8b829ac530994988,
-            0xe7,
-        ];
-
-        let redc_limbs = [
-            0xb1a54200541578edb31c3c25608db4,
-            0xc144d6e3baa59b0a87d82f1388d4c8,
-            0x76d8214546063a48c6133b5cad317e,
-            0x64a5cec0df260e37df430faef764a7,
-            0x1ad7f407e3daab66e17261f29bb1b8,
-            0x9abc4bc1de236cdeb688b94800dc28,
-            0x2603eec9b75a924c72a74d364308b0,
-            0x854bff61a07eeeb5aa6a3b5674626d,
-            0x3ca24ef9cb78bfc69674ae2d2d2d98,
-            0xfd2b6914fd1de2ed9b8337b9b05e5e,
-            0xe9dd65a87513f4b448abe18e1b320b,
-            0x69d31874ad95df6af9b3d1a25e1dec,
-            0xb3d44f8f9dfbcca3ce6ac8eceb4482,
-            0x5848954d0780a09b1e0d6fcd09a92a,
-            0x739c514ebce7b6a9ea8d5cafef6904,
-            0x2859c86fd4c643436d3401fa42f586,
-            0xbcc1f93bd0cde3199b3545075bfe9,
-            0x11ab,
-        ];
-
         let signature_limbs = [
-            0x05f6a0461dfc18f100d3103e345b85,
-            0x2922d1d0b1765b55cc23933e3a1bf5,
-            0xe789de1b0b7acaba8a3542e1de1003,
-            0x59660512223d15dbed650f5df355,
-            0xa8bd9d75dfa75c4cfdd944af0fbf22,
-            0xacb553a3bd5ca155899e4c9d71cfa5,
-            0x145908c475c24e65aa48268e50a8c2,
-            0x98a8d35194714c12121ff4967dc52c,
-            0x0323b34a118a7a65b530583462f0bc,
-            0x19dbe87de95a694d7399d218121ac1,
-            0x96d071ee188805c1a7456b597382d6,
-            0x71333c9f89fd9239f9f1c5126549ea,
-            0xb58964da1d67735e6805d1de28c292,
-            0x31e736dd30d5788ec84a9ffa652069,
-            0x24745ec38c325f20f40a4bf47bab25,
-            0x9fba29ed1c022abe03569d08be154d,
-            0x0a8cb349d538e2f90f7d5b3a64b08f,
-            0x64,
+            0xfb3edc946dc68a938edcfaf2a2189a,
+            0xef557526c4432f9867ebbdd1e8c6b0,
+            0xeb5ae2d4eb6f0d9c11618d88d23215,
+            0x3a60181d2bde77838aea34ea479b17,
+            0x9b6c60b2207a58605a50014bc5f6bc,
+            0x8962bad2d255a10538d5bacc94514a,
+            0x1a80556c2a92144aacb146c9b327cc,
+            0x473bce9c0a2657f3707236787a12bf,
+            0x8623661ed47d1f3c953a6df90ba063,
+            0xb2cf931396cda375266f365c4e62e2,
+            0xf9d7f2a494928b6d877f63ac58fb1f,
+            0x578f826550167a7055bf1148514e5d,
+            0x58bd16355967663850c07f65707055,
+            0x8fefcd57f8961cfcc2abb54411243d,
+            0xa4e0fb8fb9d231c574e24fa659a320,
+            0x8505005c48098dea541c62eedcbe77,
+            0xd3205be072f41c82b41bfaeaf5a9b1,
+            0xbd,
         ];
-        let msg = [
-            86, 50, 255, 51, 255, 50, 54, 57, 55, 50, 48, 50, 52, 48, 52, 50, 48, 48, 49, 52, 53,
-            53, 50, 57, 51, 48, 255, 83, 117, 109, 105, 116, 32, 75, 117, 109, 97, 114, 255, 48, 49,
+
+        // Modulus limbs
+        let modulus_limbs = [
+            0xc203e52bab9c3474f4e2af0cdd32a3,
+            0x5ea0a20c45685f9c9c13539274d23d,
+            0xe3d04fdfa0d2904ea659a61236ff47,
+            0x6ec6b746ae80ae86db80bd611e582f,
+            0xd452bd25cd74460ba722b5bfc9d51f,
+            0xe4e9187fd8b8631cebd31052f34a23,
+            0x6b1712a73b0053ea378dda115c1078,
+            0x4bfae172f59b06f546a33d679fafe4,
+            0xaabde4a74da86399f808de9bc7d74a,
+            0x303f1317c7c92d411657f8b5d633cf,
+            0x647ff49b62c4bf3e48a69a8aeb1b0,
+            0x4c126c91b72739c099fcba335a2536,
+            0xf9300ac75a98e72ee5ada3b94b92a0,
+            0xa80ee8d624a38b77ca6359e58d1567,
+            0xc3def8ee6984d321397348a9f57c9c,
+            0xa8428a535217236dcf092f02f901a1,
+            0x7553a1675dc35856972e047cbfbee3,
+            0xdf,
+        ];
+
+        // REDC parameters
+        let redc_limbs = [
+            0xe9b7d9b7aed73890bf46ea1008899e,
+            0xc3bfe7fc89c5cd5acd74b34ead861b,
+            0x62f86fa968fdb2a25d47a7ef4582fa,
+            0x3da93e33e5638a41eb991e05417e49,
+            0xfbc60d7d8e1af752bff9deb9e849ab,
+            0xf46388bbd0a7e2e28ad8d42314e9ad,
+            0x60fa2f1856e851b6db271aab0d7ce7,
+            0xf92617c7ea0831370b732425706298,
+            0x2949a1cfc5a7488d3bdc7a78e43b04,
+            0xb8c1929359e54baad0a376e7632f66,
+            0x4bb5e042e3b35451a4678b8dce2e89,
+            0xdecddc58324aadc7529ca3f2cf399a,
+            0x7237729ef3e84b300cb0d529ccdcc5,
+            0x7600a5f9811701e596f77f90ed93c8,
+            0xc4ced29a55637207e77740a615a8e3,
+            0x287678e88ae8eec1d485fe93aebde,
+            0x7d95fcc7eca379615ac76f1c21c897,
+            0x1254,
+        ];
+
+        let signed_data_length = 1152;
+
+        let signed_qr_data = [
+            86, 50, 255, 51, 255, 50, 54, 57, 55, 50, 48, 49, 57, 48, 51, 48, 56, 49, 49, 52, 52,
+            48, 55, 52, 51, 55, 255, 83, 117, 109, 105, 116, 32, 75, 117, 109, 97, 114, 255, 48, 49,
             45, 48, 49, 45, 49, 57, 56, 52, 255, 77, 255, 67, 47, 79, 32, 73, 115, 104, 119, 97,
             114, 32, 67, 104, 97, 110, 100, 255, 69, 97, 115, 116, 32, 68, 101, 108, 104, 105, 255,
             255, 66, 45, 51, 49, 44, 32, 51, 114, 100, 32, 70, 108, 111, 111, 114, 255, 255, 49, 49,
@@ -126,10 +131,11 @@ mod test {
             221, 184, 74, 53, 233, 255, 238, 30, 166, 5, 157, 243, 128, 0, 0, 0, 0, 0, 0, 0, 0, 0,
             0, 0, 0, 35, 136,
         ];
+
         let mut msg_vector: BoundedVec<u8, MAX_DATA_LENGTH> = BoundedVec::new();
 
-        for i in 0..msg.len() {
-            msg_vector.push(msg[i]);
+        for i in 0..signed_qr_data.len() {
+            msg_vector.push(signed_qr_data[i]);
         }
 
         let delimiter =
@@ -139,7 +145,7 @@ mod test {
 
         let outputs = aadhar_qr_verifier(
             msg_vector,
-            1152,
+            signed_data_length,
             delimiter,
             signature_limbs,
             modulus_limbs,
@@ -157,7 +163,7 @@ mod test {
         assert(outputs.gender == 77, "M as Ascii");
         assert(outputs.pinCode == 110051, "Pincode should be 110051");
         assert(outputs.state == 452723500356, "State should be 452723500356");
-        assert(outputs.timestamp == 1713555000, "Timestamp should be 1713555000");
+        assert(outputs.timestamp == 1552023000, "Timestamp should be 1552023000");
     }
 }
 
