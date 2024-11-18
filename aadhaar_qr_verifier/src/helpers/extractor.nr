@@ -17,17 +17,9 @@ pub fn extractor(
     let mut nDelimitedData: [u32; MAX_DATA_LENGTH] = [0; MAX_DATA_LENGTH];
 
     for i in 0..qr_data_arr.len() {
-        // current value is delimiter (255)
-        let is_255 = if qr_data_arr[i] == 255 { true } else { false };
-
-        // current index is before photo position
-        let is_less_than_12 = if (i as u8) < (delimiterIndices[photo_position() - 1] + 1) as u8 {
-            true
-        } else {
-            false
-        };
-
-        let is_255_and_index_before_photo = (is_255 & is_less_than_12) as u32;
+        let is_255 = qr_data_arr[i] == 255;
+        let is_less_than_12 = (i as u8) < (delimiterIndices[photo_position() - 1] + 1) as u8;
+        let is_255_and_index_before_photo = if is_255 & is_less_than_12 { 1 } else { 0 };
 
         assert(
             is_255_and_index_before_photo * (is_255_and_index_before_photo - 1) == 0,
@@ -247,13 +239,14 @@ fn state_extractor(
     let endDelimiterIndex = delimiterIndices[extractPosition] as u32;
 
     assert(nDelimitedData[startDelimiterIndex] == (extractPosition * 255) as u32);
+    assert(endDelimiterIndex - startDelimiterIndex <= MAX_FIELD_BYTE_SIZE as u32);
+
     let mut state_data_array: [u8; MAX_FIELD_BYTE_SIZE] = [0; MAX_FIELD_BYTE_SIZE];
 
-    // ignore the first byte since we don;t need to contruct the state data in packed field
-    let mut index = 0;
-    for i in (startDelimiterIndex + 1)..endDelimiterIndex {
-        state_data_array[index] = nDelimitedData[i] as u8;
-        index += 1;
+    for i in 0..MAX_FIELD_BYTE_SIZE {
+        if (startDelimiterIndex + i as u32 + 1) < endDelimiterIndex {
+            state_data_array[i] = nDelimitedData[startDelimiterIndex + i as u32 + 1] as u8;
+        }
     }
 
     let state_packed_bytes = pack_bytes(state_data_array);
@@ -266,17 +259,17 @@ fn photo_extractor(
     end_index: u64,
 ) -> [Field; 33] {
     let mut state_data_array: [u8; MAX_PHOTO_BYTES] = [0; MAX_PHOTO_BYTES];
-    let length = end_index - start_index;
 
     assert(nDelimitedData[start_index] == (photo_position() * 255) as u32);
+    assert(end_index - start_index <= MAX_PHOTO_BYTES as u64);
 
-    // -> why (start_index + i + 1)? => +1 at the end skipping the first byte. we need for contraint only!
-    for i in 0..length {
-        state_data_array[i] = nDelimitedData[(start_index + i + 1)] as u8;
+    for i in 0..MAX_PHOTO_BYTES {
+        if (start_index + i as u64 + 1) < end_index {
+            state_data_array[i] = nDelimitedData[(start_index + i as u64 + 1)] as u8;
+        }
     }
 
     let state_packed_bytes = pack_bytes(state_data_array);
-    // assert(state_packed_bytes[32] == 0, "Last byte should be zero");
     // todo we don;t need last byte. we can return [field;32] but we need copy entire array.
     // array.remove method?
     state_packed_bytes
