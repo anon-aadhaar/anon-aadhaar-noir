@@ -1,5 +1,5 @@
 mod tests {
-    use crate::aadhar_qr_verifier;
+    use crate::main;
     use crate::MAX_DATA_LENGTH;
 
     #[test]
@@ -138,12 +138,14 @@ mod tests {
             msg_vector.push(signed_qr_data[i]);
         }
 
+        println(msg_vector.storage);
+
         let delimiter =
             [2, 4, 26, 38, 49, 51, 68, 79, 80, 96, 97, 104, 118, 124, 152, 165, 179, 184];
         let nullifierSeed: Field = 12345678; // Example seed
-        let signalHash = 10;
+        let signalHash = 1001;
 
-        let outputs = aadhar_qr_verifier(
+        let outputs = main(
             msg_vector,
             signed_data_length,
             delimiter,
