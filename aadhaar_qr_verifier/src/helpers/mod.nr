@@ -11,7 +11,7 @@ pub global PINCODE_POS = 11;
 pub global STATE_POS = 13;
 pub global PHOTO_POS = 18;
 
-pub struct AadharData {
+struct AadharData {
     age: u32,
     gender: u32,
     pincode: u32,
@@ -20,7 +20,7 @@ pub struct AadharData {
     photo: [Field; 33],
 }
 
-pub struct Date {
+struct Date {
     year: u32,
     month: u32,
     day: u32,

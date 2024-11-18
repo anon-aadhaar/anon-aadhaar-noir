@@ -20,12 +20,12 @@ global MAX_PHOTO_BYTES: u32 = MAX_BYTES_IN_FIELD * MAX_FIELD_BYTE_SIZE;
 type QRData = BoundedVec<u8, MAX_DATA_LENGTH>;
 
 pub struct RevealedData {
-    pub age: bool,
-    pub gender: u32,
-    pub pinCode: u32,
-    pub state: Field,
-    pub timestamp: Field,
-    pub nullifier: Field,
+    age: bool,
+    gender: u32,
+    pinCode: u32,
+    state: Field,
+    timestamp: Field,
+    nullifier: Field,
 }
 
 pub fn main(

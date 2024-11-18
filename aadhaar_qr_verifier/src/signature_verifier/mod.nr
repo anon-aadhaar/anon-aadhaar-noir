@@ -1,14 +1,14 @@
 use dep::rsa::{rsa::verify_sha256_pkcs1v15, types::RBN2048};
 use dep::bignum::{params::BigNumParams, RuntimeBigNum};
-use crate::{RSA_EXPONENT, QRData};
+use crate::{RSA_EXPONENT, QRData, LIMBS_SIZE};
 use std::hash::sha256::sha256_var;
 
-pub fn verify_signature(
+pub fn verify_signature<>(
     qrDataPadded: QRData,
     qrDataPaddedLength: u32,
-    signature_limbs: [Field; 18],
-    modulus_limbs: [Field; 18],
-    redc_limbs: [Field; 18],
+    signature_limbs: [Field; LIMBS_SIZE],
+    modulus_limbs: [Field; LIMBS_SIZE],
+    redc_limbs: [Field; LIMBS_SIZE],
 ) {
     let sha = sha256_var(qrDataPadded.storage, qrDataPaddedLength as u64);
     let has_multiplicative_inverse = false;
