@@ -2,6 +2,9 @@
 
 BB_CMD=${1:-"bb"}
 
+echo "Compiling the circuit... ✅"
+nargo compile
+
 echo "Generating the proof... ✅"
 "$BB_CMD" prove -b ./target/aadhaar_qr_verifier.json -w ./target/aadhaar_qr_verifier.gz -o ./target/proof
 

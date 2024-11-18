@@ -1,5 +1,4 @@
 pub mod helpers;
-
 mod tests;
 mod signature_verifier;
 use signature_verifier::verify_signature;
@@ -29,7 +28,6 @@ pub struct RevealedData {
     pub nullifier: Field,
 }
 
-// qr_aadhar_verifier circuits
 pub fn main(
     qrDataPadded: QRData,
     qrDataPaddedLength: u32,
@@ -54,18 +52,17 @@ pub fn main(
     );
 
     // Extracting data from QR code
-    let (age, gender, pincode, state, timestamp, photo) =
-        extractor(qrDataPadded, qrDataPaddedLength, delimiterIndices);
+    let AadharData = extractor(qrDataPadded, qrDataPaddedLength, delimiterIndices);
 
     // Revealing data
-    let ageAbove18 = age > 18;
+    let ageAbove18 = AadharData.age > 18;
     let outputAge = if revealAgeAbove18 { ageAbove18 } else { false };
-    let outputGender = if revealGender { gender } else { 0 };
-    let outputPinCode = if revealPinCode { pincode } else { 0 };
-    let outputState = if revealState { state } else { 0 };
+    let outputGender = if revealGender { AadharData.gender } else { 0 };
+    let outputPinCode = if revealPinCode { AadharData.pincode } else { 0 };
+    let outputState = if revealState { AadharData.state } else { 0 };
 
     // Nullifier
-    let nullifier = nullifier_circuit(nullifierSeed, photo);
+    let nullifier = nullifier_circuit(nullifierSeed, AadharData.photo);
 
     // Signal
     let signalHashSq = signalHash * signalHash;
@@ -76,7 +73,7 @@ pub fn main(
         gender: outputGender,
         pinCode: outputPinCode,
         state: outputState,
-        timestamp: timestamp,
+        timestamp: AadharData.timestamp,
         nullifier: nullifier,
     }
 }
