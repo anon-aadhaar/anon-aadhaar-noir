@@ -138,8 +138,6 @@ mod tests {
             msg_vector.push(signed_qr_data[i]);
         }
 
-        println(msg_vector.storage);
-
         let delimiter =
             [2, 4, 26, 38, 49, 51, 68, 79, 80, 96, 97, 104, 118, 124, 152, 165, 179, 184];
         let nullifierSeed: Field = 12345678; // Example seed
@@ -161,11 +159,14 @@ mod tests {
         );
 
         // all of these result values are extracted from circom codebase.
-        assert(outputs.age, "Age should be above 18");
+        assert(outputs.age == true, "Age should be above 18");
         assert(outputs.gender == 77, "M as Ascii");
-        assert(outputs.pinCode == 110051, "Pincode should be 110051");
+        assert(outputs.pincode == 110051, "Pincode should be 110051");
         assert(outputs.state == 452723500356, "State should be 452723500356");
         assert(outputs.timestamp == 1552023000, "Timestamp should be 1552023000");
+
+        println(outputs.nullifier);
+        println(outputs.pubkey_hash);
     }
 }
 

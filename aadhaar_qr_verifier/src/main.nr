@@ -22,10 +22,11 @@ type QRData = BoundedVec<u8, MAX_DATA_LENGTH>;
 pub struct RevealedData {
     age: bool,
     gender: u32,
-    pinCode: u32,
+    pincode: u32,
     state: Field,
     timestamp: Field,
     nullifier: Field,
+    pubkey_hash: Field,
 }
 
 pub fn main(
@@ -43,7 +44,7 @@ pub fn main(
     signalHash: Field,
 ) -> pub RevealedData {
     // Signature verification
-    verify_signature(
+    let pubkey_hash = verify_signature(
         qrDataPadded,
         qrDataPaddedLength,
         signature_limbs,
@@ -71,10 +72,11 @@ pub fn main(
     RevealedData {
         age: outputAge,
         gender: outputGender,
-        pinCode: outputPinCode,
+        pincode: outputPinCode,
         state: outputState,
         timestamp: AadharData.timestamp,
-        nullifier: nullifier,
+        nullifier,
+        pubkey_hash: pubkey_hash,
     }
 }
 
