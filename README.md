@@ -1,43 +1,78 @@
-# anon-aadhaar-noir
+# Anon-Aadhaar Protocol Implementation in Noir
 
-Anon-Aadhaar protocol implementation in Noir
+This project implements the Anon-Aadhaar protocol using Noir.
 
-The following modules work:
+## Modules
 
-1. SHA256 Hash
-2. RSA Signature Verification
-3. Conditional Disclosure of Secrets
-4. Computing the nullifier using the Poseidon Hash function
-5. Converting the IST timestamp to UTC UNIX timestamp
-6. SignalHash constraints for frontrunning atttacks
+- `/circuits`: **Noir Circuits**
+- `/scripts`: **scripts for generating testcases**
 
-To run the entire circuit:
+## Setup
 
-1. cd aadhaar_qr_verifier
-2. nargo check --overwrite
-3. nargo test --show-output
+### Prerequisites
 
-To run the RSA-SHA256 circuit:
+Note: Ensure you have Noir version **0.38.0** and barretenberg backend verison **0.61.0**
 
-1. cd rsa-sha256
-2. noirup -v 0.32.0
-3. nargo check --overwrite
-4. nargo test
+installed and
+. If not, set it specfic version using the following command:
 
-And in each of the folders nullifier, timestamp, cds, signal:
+```sh
+noirup -v 0.36.0
+bbup -v 0.61.0
+```
 
-1. cd folder_name
-2. nargo check --overwrite
-3. nargo test
+### Build circuits:
 
-Benchmarks via the Barretenberg Backend:
+```sh
+cd circuits
+nargo compile
+```
 
-| Part of the Circuit | Proving Time | Verification Time |
-| ------------------- | ------------ | ----------------- |
-| RSA-SHA256          | 0.502s       | 0.064             |
+### Testing
 
-The Verification Cost of the Solidity Verifier of the entire Aadhaar_QR_Verifier circuit:
+To run the tests:
 
-Total Gas Cost: 2904342 gas  
-Transaction Cost: 2525514 gas  
-Execution Cost: 2251848 gas
+```sh
+nargo test --show-output
+```
+
+### Testing with Real Data
+
+To run the tests with read data:
+
+1. Setup scripts:
+
+```sh
+cd scripts
+yarn install
+```
+
+2. Add .env in scripts directory with:
+
+```sh
+export REAL_DATA=true
+export QR_DATA= <aadhar data (bigint)>
+```
+
+3. Generate test inputs:
+
+```sh
+yarn gen-test-inputs
+```
+
+**This creates test inputs in circuits/testcases/test.toml**
+
+4. Execute tests with real data:
+
+```sh
+nargo execute -p test.toml
+```
+
+## Benchmarks
+
+Will be updating soon.
+Benchmarks via the Barretenberg Backend on M1 Macbook Pro 2020:
+
+| Part of the Circuit | Number of Gates | Proving Time | Verification Time |
+| ------------------- | --------------- | ------------ | ----------------- |
+| Aadhaar QR Verifier | 271710          |              |                   |
