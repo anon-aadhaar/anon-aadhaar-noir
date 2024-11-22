@@ -1,7 +1,8 @@
 # anon-aadhaar-noir
+
 Anon-Aadhaar protocol implementation in Noir
 
-The following modules work: 
+The following modules work:
 
 1. SHA256 Hash
 2. RSA Signature Verification
@@ -32,16 +33,11 @@ And in each of the folders nullifier, timestamp, cds, signal:
 Benchmarks via the Barretenberg Backend:
 
 | Part of the Circuit | Proving Time | Verification Time |
-|-----------------|-----------------|-----------------|
-| RSA-SHA256    | 0.502s    | 0.064    |
-| Nullifier    |  0.611s   | 0.066s    |
-| Conditional Secrets    |  0.102s  |  0.061s   |
-| Timestamp    |   0.401s  |  0.057s  |
-| Signal    | 0.092s    | 0.065s    |  
+| ------------------- | ------------ | ----------------- |
+| RSA-SHA256          | 0.502s       | 0.064             |
 
+The Verification Cost of the Solidity Verifier of the entire Aadhaar_QR_Verifier circuit:
 
-The Verification Cost of the Solidity Verifier of the entire Aadhaar_QR_Verifier circuit:  
-
-Total Gas Cost:	2904342 gas  
-Transaction Cost:	2525514 gas   
-Execution Cost:	2251848 gas   
+Total Gas Cost: 2904342 gas  
+Transaction Cost: 2525514 gas  
+Execution Cost: 2251848 gas

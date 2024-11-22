@@ -19,7 +19,7 @@ fn compress_pubkey(pub_key: [Field; LIMBS_SIZE]) -> [Field; LIMBS_SIZE / 2] {
 }
 
 /// Verifies the signature of the QR data
-pub fn verify_signature<>(
+pub fn verify_signature(
     qrDataPadded: QRData,
     qrDataPaddedLength: u32,
     signature_limbs: [Field; LIMBS_SIZE],
