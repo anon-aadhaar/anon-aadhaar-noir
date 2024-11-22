@@ -42,31 +42,32 @@ To run the tests with read data:
 
 1. Setup scripts:
 
-```sh
-cd scripts
-yarn install
-```
+   ```sh
+   cd scripts
+   yarn install
+   ```
 
-2. Add .env in scripts directory with:
+2. Configure environment:
 
-```sh
-export REAL_DATA=true
-export QR_DATA= <aadhar data (bigint)>
-```
+   - Create `.env` in `scripts` directory with:
+
+   ```sh
+   export REAL_DATA=true
+   export QR_DATA= <aadhar data (bigint)>
+   ```
 
 3. Generate test inputs:
 
-```sh
-yarn gen-test-inputs
-```
+   ```sh
+   yarn gen-test-inputs
+   ```
 
-**This creates test inputs in circuits/testcases/test.toml**
+   This creates test inputs in `circuits/testcases/test.toml`
 
 4. Execute tests with real data:
-
-```sh
-nargo execute -p test.toml
-```
+   ```sh
+   nargo execute -p test.toml
+   ```
 
 ## Benchmarks
 
