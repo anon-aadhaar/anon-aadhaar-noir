@@ -15,7 +15,7 @@ This project implements the Anon-Aadhaar protocol using Noir.
 Note: Ensure you have Noir version **0.38.0** and barretenberg backend verison **0.61.0**
 
 installed and
-. If not, set it specfic version using the following command:
+. If not, set it specific version using the following command:
 
 ```sh
 noirup -v 0.36.0
@@ -43,32 +43,33 @@ To run the tests with read data:
 
 1. Setup scripts:
 
-   ```sh
-   cd scripts
-   yarn install
-   ```
+```sh
+cd scripts
+yarn install
+```
 
 2. Configure environment:
 
    - Create `.env` in `scripts` directory with:
 
-   ```sh
-   export REAL_DATA=true
-   export QR_DATA= <aadhar data (bigint)>
-   ```
+```sh
+export REAL_DATA=true
+export QR_DATA= <aadhar data (bigint)>
+```
 
 3. Generate test inputs:
 
-   ```sh
-   yarn gen-test-inputs
-   ```
+```sh
+yarn gen-test-inputs
+```
 
-   This creates test inputs in `circuits/testcases/test.toml`
+This creates test inputs in `circuits/testcases/test.toml`
 
 4. Execute tests with real data:
-   ```sh
-   nargo execute -p test.toml
-   ```
+
+```sh
+nargo execute -p testcases/test.toml
+```
 
 ## Benchmarks
 
@@ -77,10 +78,14 @@ Benchmarks via the Barretenberg Backend on M1 Macbook Pro 2020:
 To run the benchmarks:
 
 ```sh
- cd scripts
+cd scripts
 ./benchmark.sh
 ```
 
-| Number of Gates | Proving Time  | Verification Time |
-| --------------- | ------------- | ----------------- |
-| 237811          | 0.862 Seconds | 0.042 Seconds     |
+Circuit Size: `237,811` gates
+
+| Operation     | Ultra Honk | Default BB |
+| ------------- | ---------- | ---------- |
+| Proving       | 2.672s     | 6.878s     |
+| VK Generation | 1.799s     | 6.551s     |
+| Verification  | 0.042s     | 0.044s     |

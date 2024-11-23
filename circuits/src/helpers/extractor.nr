@@ -33,11 +33,6 @@ pub fn extractor(
         let is_less_than_12 = (i as u8) < (delimiterIndices[PHOTO_POS - 1] + 1);
         let is_255_and_index_before_photo = if is_255 & is_less_than_12 { 1 } else { 0 };
 
-        assert(
-            is_255_and_index_before_photo * (is_255_and_index_before_photo - 1) == 0,
-            "is_255 && index before photo should be boolean value",
-        );
-
         n255_filter[i + 1] = is_255_and_index_before_photo * 255 + n255_filter[i];
 
         nDelimitedData[i] =
