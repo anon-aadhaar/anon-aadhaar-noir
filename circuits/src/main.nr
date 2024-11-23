@@ -1,11 +1,11 @@
 pub mod helpers;
 mod tests;
 mod signature_verifier;
+use helpers::{extractor::extractor, nullifier::nullifier_circuit, signal::signal_circuit};
 use signature_verifier::verify_signature;
-use helpers::{nullifier::nullifier_circuit, signal::signal_circuit, extractor::extractor};
 
 global RSA_EXPONENT: u32 = 65537;
-global MAX_YEARS: Field = 2032;
+global MAX_YEARS: u32 = 2032;
 global INCLUDE_HOURS: bool = true;
 global INCLUDE_MINUTES: bool = false;
 global INCLUDE_SECONDS: bool = false;
@@ -29,6 +29,7 @@ pub struct RevealedData {
     pubkey_hash: Field,
 }
 
+// circuit size: 237811
 pub fn main(
     qrDataPadded: QRData,
     qrDataPaddedLength: u32,
@@ -43,7 +44,8 @@ pub fn main(
     nullifierSeed: Field,
     signalHash: Field,
 ) -> pub RevealedData {
-    // Signature verification
+    // Signature verification and pubkey hash extraction
+    // 1,80,860 Gates
     let pubkey_hash = verify_signature(
         qrDataPadded,
         qrDataPaddedLength,
@@ -53,9 +55,10 @@ pub fn main(
     );
 
     // Extracting data from QR code
+    // 46829 Gates
     let AadharData = extractor(qrDataPadded, qrDataPaddedLength, delimiterIndices);
 
-    // Revealing data
+    // Selective Disclosure
     let ageAbove18 = AadharData.age > 18;
     let outputAge = if revealAgeAbove18 { ageAbove18 } else { false };
     let outputGender = if revealGender { AadharData.gender } else { 0 };
@@ -76,7 +79,7 @@ pub fn main(
         state: outputState,
         timestamp: AadharData.timestamp,
         nullifier,
-        pubkey_hash: pubkey_hash,
+        pubkey_hash,
     }
 }
 

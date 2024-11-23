@@ -1,9 +1,18 @@
 use crate::{
+    DELIMITER_INDICES_LENGTH,
     helpers::{
-        bytes_array_to_int, DOB_POS, GENDER_POS, PHOTO_POS, PINCODE_POS, STATE_POS, AadharData,
-        Date,
-    }, DELIMITER_INDICES_LENGTH, INCLUDE_HOURS, INCLUDE_MINUTES, INCLUDE_SECONDS, IST_OFFSET,
-    MAX_DATA_LENGTH, MAX_FIELD_BYTE_SIZE, MAX_PHOTO_BYTES, MAX_YEARS, QRData,
+        AadharData, bytes_array_to_int, Date, DOB_POS, GENDER_POS, PHOTO_POS, PINCODE_POS,
+        STATE_POS,
+    },
+    INCLUDE_HOURS,
+    INCLUDE_MINUTES,
+    INCLUDE_SECONDS,
+    IST_OFFSET,
+    MAX_DATA_LENGTH,
+    MAX_FIELD_BYTE_SIZE,
+    MAX_PHOTO_BYTES,
+    MAX_YEARS,
+    QRData,
 };
 
 use nodash::pack_bytes;
@@ -19,7 +28,7 @@ pub fn extractor(
 
     for i in 0..qr_data_arr.len() {
         let is_255 = qr_data_arr[i] == 255;
-        let is_less_than_12 = (i as u8) < (delimiterIndices[PHOTO_POS - 1] + 1) as u8;
+        let is_less_than_12 = (i as u8) < (delimiterIndices[PHOTO_POS - 1] + 1);
         let is_255_and_index_before_photo = if is_255 & is_less_than_12 { 1 } else { 0 };
 
         assert(
@@ -27,19 +36,21 @@ pub fn extractor(
             "is_255 && index before photo should be boolean value",
         );
 
-        n255_filter[i + 1] = (is_255_and_index_before_photo as u32) * 255 + n255_filter[i];
+        n255_filter[i + 1] = is_255_and_index_before_photo * 255 + n255_filter[i];
 
         nDelimitedData[i] =
-            (is_255_and_index_before_photo as u32) * n255_filter[i] + (qr_data_arr[i] as u32);
+            is_255_and_index_before_photo * n255_filter[i] + (qr_data_arr[i] as u32);
     }
 
+    // 170 gates
     let date = date_extractor(nDelimitedData);
 
+    // 200 gates
     let timestamp = timestamp_extractor(
-        date.year as Field,
-        date.month as Field,
-        date.day as Field,
-        date.hour as Field,
+        date.year,
+        date.month,
+        date.day,
+        date.hour,
         0,
         0,
         MAX_YEARS,
@@ -47,8 +58,10 @@ pub fn extractor(
         INCLUDE_MINUTES,
         INCLUDE_SECONDS,
     );
+
     assert(timestamp != 0, "timestamp should not be 0");
 
+    // 17k gates
     let (age, gender) = age_and_gender_extractor(
         nDelimitedData,
         (delimiterIndices[(DOB_POS - 1)]) as u32,
@@ -57,14 +70,17 @@ pub fn extractor(
         date.day,
     );
 
+    // 70 gates
     let pincode = pincode_extractor(nDelimitedData, delimiterIndices[(PINCODE_POS - 1)] as u32);
 
+    // 400 gates
     let state = state_extractor(nDelimitedData, delimiterIndices, STATE_POS);
 
+    // 11k contraints
     let photo = photo_extractor(
         nDelimitedData,
-        delimiterIndices[(PHOTO_POS - 1) as u64] as u64,
-        (qrDataPaddedLength - 1) as u64,
+        delimiterIndices[(PHOTO_POS - 1)] as u32,
+        (qrDataPaddedLength - 1),
     );
 
     AadharData { age, gender, pincode, state, timestamp, photo }
@@ -83,58 +99,57 @@ fn date_extractor(nDelimitedData: [u32; MAX_DATA_LENGTH]) -> Date {
 }
 
 fn timestamp_extractor(
-    year: Field,
-    month: Field,
-    day: Field,
-    hour: Field,
-    minute: Field,
-    second: Field,
-    maxYears: Field,
+    year: u32,
+    month: u32,
+    day: u32,
+    hour: u32,
+    minute: u32,
+    second: u32,
+    maxYears: u32,
     includeHours: bool,
     includeMinutes: bool,
     includeSeconds: bool,
 ) -> Field {
-    // Validate inputs
-    assert(year as u32 >= 1970 & year as u32 <= maxYears as u32);
-    assert(month as u32 >= 1 & month as u32 <= 12);
-    assert(day as u32 >= 1 & day as u32 <= 31);
-    assert(hour as u32 >= 0 & hour as u32 <= 23);
-    assert(minute as u32 >= 0 & minute as u32 <= 59);
-    assert(second as u32 >= 0 & second as u32 <= 59);
+    // Range checks
+    assert(year >= 1970 & year <= maxYears);
+    assert(month >= 1 & month <= 12);
+    assert(day >= 1 & day <= 31);
+    assert(hour >= 0 & hour <= 23);
+    assert(minute >= 0 & minute <= 59);
+    assert(second >= 0 & second <= 59);
 
-    let DAYS_PER_MONTH: [u64; 12] = [0, 31, 59, 90, 120, 151, 181, 212, 243, 273, 304, 334];
-    let SECONDS_PER_DAY: u64 = 86400;
-    let SECONDS_PER_HOUR: u64 = 3600;
+    let DAYS_PER_MONTH: [Field; 12] = [0, 31, 59, 90, 120, 151, 181, 212, 243, 273, 304, 334];
+    let SECONDS_PER_DAY: Field = 86400;
+    let SECONDS_PER_HOUR: Field = 3600;
 
-    let year_i64 = year as u64;
-    let mut total_days = (year_i64 - 1970) * 365 + (day as u64) - 1;
+    let mut total_days: Field = (year as Field - 1970) * 365 + (day as Field) - 1;
 
-    if month as i64 > 1 {
-        total_days += DAYS_PER_MONTH[(month as i64 - 1)];
+    if month > 1 {
+        total_days += DAYS_PER_MONTH[(month - 1)];
     }
 
     // Calculate leap years
     let mut leap_days = 0;
-    if year_i64 > 1972 {
-        leap_days = ((year_i64 - 1972 - 1) / 4) + 1;
-        if (year_i64 >= 1972) & ((year_i64 - 1972) % 4 == 0) & (month as i64 > 2) {
+    if year > 1972 {
+        leap_days = ((year - 1972 - 1) / 4) + 1;
+        if (year >= 1972) & ((year - 1972) % 4 == 0) & (month > 2) {
             leap_days += 1;
         }
     }
-    total_days += leap_days;
+    total_days += leap_days as Field;
 
     let mut timestamp = total_days * SECONDS_PER_DAY;
     if includeHours {
-        timestamp += (hour as u64) * SECONDS_PER_HOUR;
+        timestamp += (hour as Field) * SECONDS_PER_HOUR;
     }
     if includeMinutes {
-        timestamp += (minute as u64) * 60;
+        timestamp += (minute as Field) * 60;
     }
     if includeSeconds {
-        timestamp += second as u64;
+        timestamp += second as Field;
     }
 
-    (timestamp as Field - IST_OFFSET)
+    (timestamp - IST_OFFSET)
 }
 
 fn age_and_gender_extractor(
@@ -146,6 +161,7 @@ fn age_and_gender_extractor(
 ) -> (u32, u32) {
     let mut age_data = [0; 12];
     let mut gender_data = [0; 12];
+
     for i in 0..12 {
         age_data[i] = nDelimitedData[(startDelimiterIndex + i)];
         gender_data[i] = nDelimitedData[(startDelimiterIndex + i) + 11];
@@ -232,17 +248,18 @@ fn state_extractor(
 
 fn photo_extractor(
     nDelimitedData: [u32; MAX_DATA_LENGTH],
-    start_index: u64,
-    end_index: u64,
+    start_index: u32,
+    end_index: u32,
 ) -> [Field; 33] {
     let mut state_data_array: [u8; MAX_PHOTO_BYTES] = [0; MAX_PHOTO_BYTES];
 
     assert(nDelimitedData[start_index] == (PHOTO_POS * 255) as u32);
-    assert(end_index - start_index <= MAX_PHOTO_BYTES as u64);
+    assert(end_index - start_index <= MAX_PHOTO_BYTES);
 
     for i in 0..MAX_PHOTO_BYTES {
-        if (start_index + i as u64 + 1) < end_index {
-            state_data_array[i] = nDelimitedData[(start_index + i as u64 + 1)] as u8;
+        let is_within_bounds = (start_index + i + 1) < end_index;
+        if is_within_bounds {
+            state_data_array[i] = nDelimitedData[(start_index + i + 1)] as u8;
         }
     }
 
