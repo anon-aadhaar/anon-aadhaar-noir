@@ -5,7 +5,8 @@ This project implements the Anon-Aadhaar protocol using Noir.
 ## Modules
 
 - `/circuits`: **Noir Circuits**
-- `/scripts`: **scripts for generating testcases**
+- `/js`: **js sdk for proving noir circuits**
+- `/scripts`: **Scripts for testing and benchmarking**
 
 ## Setup
 
@@ -71,9 +72,15 @@ To run the tests with read data:
 
 ## Benchmarks
 
-Will be updating soon.
 Benchmarks via the Barretenberg Backend on M1 Macbook Pro 2020:
 
-| Part of the Circuit | Number of Gates | Proving Time | Verification Time |
-| ------------------- | --------------- | ------------ | ----------------- |
-| Aadhaar QR Verifier | 237811          |              |                   |
+To run the benchmarks:
+
+```sh
+ cd scripts
+./benchmark.sh
+```
+
+| Number of Gates | Proving Time  | Verification Time |
+| --------------- | ------------- | ----------------- |
+| 237811          | 0.862 Seconds | 0.042 Seconds     |

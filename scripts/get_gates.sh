@@ -3,6 +3,8 @@
 
 BB_CMD=${1:-"bb"}
 
+cd ../circuits
+
 ## Compile the circuit
 nargo compile --force --silence-warnings
 
