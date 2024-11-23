@@ -1,47 +1,91 @@
-# anon-aadhaar-noir
-Anon-Aadhaar protocol implementation in Noir
+# Anon-Aadhaar Protocol Implementation in Noir
 
-The following modules work: 
+This project implements the Anon-Aadhaar protocol using Noir.
 
-1. SHA256 Hash
-2. RSA Signature Verification
-3. Conditional Disclosure of Secrets
-4. Computing the nullifier using the Poseidon Hash function
-5. Converting the IST timestamp to UTC UNIX timestamp
-6. SignalHash constraints for frontrunning atttacks
+## Modules
 
-To run the entire circuit:
+- `/circuits`: **Noir Circuits**
+- `/js`: **js sdk for proving noir circuits**
+- `/scripts`: **Scripts for testing and benchmarking**
 
-1. cd aadhaar_qr_verifier
-2. nargo check --overwrite
-3. nargo test --show-output
+## Setup
 
-To run the RSA-SHA256 circuit:
+### Prerequisites
 
-1. cd rsa-sha256
-2. noirup -v 0.32.0
-3. nargo check --overwrite
-4. nargo test
+Note: Ensure you have Noir version **0.38.0** and barretenberg backend verison **0.61.0**
 
-And in each of the folders nullifier, timestamp, cds, signal:
+installed and
+. If not, set it specific version using the following command:
 
-1. cd folder_name
-2. nargo check --overwrite
-3. nargo test
+```sh
+noirup -v 0.36.0
+bbup -v 0.61.0
+```
 
-Benchmarks via the Barretenberg Backend:
+### Build circuits:
 
-| Part of the Circuit | Proving Time | Verification Time |
-|-----------------|-----------------|-----------------|
-| RSA-SHA256    | 0.502s    | 0.064    |
-| Nullifier    |  0.611s   | 0.066s    |
-| Conditional Secrets    |  0.102s  |  0.061s   |
-| Timestamp    |   0.401s  |  0.057s  |
-| Signal    | 0.092s    | 0.065s    |  
+```sh
+cd circuits
+nargo compile
+```
 
+### Testing
 
-The Verification Cost of the Solidity Verifier of the entire Aadhaar_QR_Verifier circuit:  
+To run the tests:
 
-Total Gas Cost:	2904342 gas  
-Transaction Cost:	2525514 gas   
-Execution Cost:	2251848 gas   
+```sh
+nargo test --show-output
+```
+
+### Testing with Real Data
+
+To run the tests with read data:
+
+1. Setup scripts:
+
+```sh
+cd scripts
+yarn install
+```
+
+2. Configure environment:
+
+   - Create `.env` in `scripts` directory with:
+
+```sh
+export REAL_DATA=true
+export QR_DATA= <aadhar data (bigint)>
+```
+
+3. Generate test inputs:
+
+```sh
+yarn gen-test-inputs
+```
+
+This creates test inputs in `circuits/testcases/test.toml`
+
+4. Execute tests with real data:
+
+```sh
+nargo execute -p testcases/test.toml
+```
+
+## Benchmarks
+
+Benchmarks via the Barretenberg Backend on M1 Macbook Pro 2020:
+
+To run the benchmarks:
+
+```sh
+cd scripts
+./benchmark.sh
+```
+
+Circuit Size: `237,811` gates
+
+| Operation     | Ultra Honk | Default BB |
+| ------------- | ---------- | ---------- |
+| Proving       | 2.672s     | 6.878s     |
+| VK Generation | 1.799s     | 6.551s     |
+| Verification  | 0.042s     | 0.044s     |

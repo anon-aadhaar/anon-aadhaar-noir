@@ -1,0 +1,10 @@
+[package]
+name = "aadhaar_qr_verifier"
+type = "bin"
+authors = [""]
+compiler_version = ">=0.36.0"
+
+[dependencies]
+bignum = { tag = "v0.4.1", git = "https://github.com/noir-lang/noir-bignum" }
+rsa = { tag = "v0.4.0", git = "https://github.com/noir-lang/noir_rsa", directory = "lib" }
+nodash = { git = "https://github.com/olehmisar/nodash/", tag = "v0.36.0" }

@@ -1,8 +1,0 @@
-[package]
-name = "aadhaar_qr_verifier"
-type = "bin"
-authors = [""]
-compiler_version = ">=0.32.0"
-
-[dependencies]
-bignum = {tag = "v0.3.0", git = "https://github.com/noir-lang/noir-bignum"}
