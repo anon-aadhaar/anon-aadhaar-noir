@@ -76,4 +76,4 @@ Benchmarks via the Barretenberg Backend on M1 Macbook Pro 2020:
 
 | Part of the Circuit | Number of Gates | Proving Time | Verification Time |
 | ------------------- | --------------- | ------------ | ----------------- |
-| Aadhaar QR Verifier | 271710          |              |                   |
+| Aadhaar QR Verifier | 237811          |              |                   |

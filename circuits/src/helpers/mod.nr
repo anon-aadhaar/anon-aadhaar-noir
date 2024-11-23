@@ -5,8 +5,8 @@ pub mod extractor;
 // Constants for field positions
 pub global REFERENCE_ID_POS = 2;
 pub global NAME_POS = 3;
-pub global DOB_POS = 4;
-pub global GENDER_POS = 5;
+pub global DOB_POS: u32 = 4;
+pub global GENDER_POS: u32 = 5;
 pub global PINCODE_POS = 11;
 pub global STATE_POS = 13;
 pub global PHOTO_POS = 18;

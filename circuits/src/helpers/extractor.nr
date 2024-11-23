@@ -17,6 +17,8 @@ use crate::{
 
 use nodash::pack_bytes;
 
+/// Aadhaar QRDataExtractor
+/// Extracts the name, date, gender, photo from the Aadhaar QR data
 pub fn extractor(
     qrDataPadded: QRData,
     qrDataPaddedLength: u32,
@@ -42,10 +44,8 @@ pub fn extractor(
             is_255_and_index_before_photo * n255_filter[i] + (qr_data_arr[i] as u32);
     }
 
-    // 170 gates
     let date = date_extractor(nDelimitedData);
 
-    // 200 gates
     let timestamp = timestamp_extractor(
         date.year,
         date.month,
@@ -61,7 +61,6 @@ pub fn extractor(
 
     assert(timestamp != 0, "timestamp should not be 0");
 
-    // 17k gates
     let (age, gender) = age_and_gender_extractor(
         nDelimitedData,
         (delimiterIndices[(DOB_POS - 1)]) as u32,
@@ -70,13 +69,10 @@ pub fn extractor(
         date.day,
     );
 
-    // 70 gates
     let pincode = pincode_extractor(nDelimitedData, delimiterIndices[(PINCODE_POS - 1)] as u32);
 
-    // 400 gates
     let state = state_extractor(nDelimitedData, delimiterIndices, STATE_POS);
 
-    // 11k contraints
     let photo = photo_extractor(
         nDelimitedData,
         delimiterIndices[(PHOTO_POS - 1)] as u32,
@@ -86,6 +82,9 @@ pub fn extractor(
     AadharData { age, gender, pincode, state, timestamp, photo }
 }
 
+/// Date extractor
+/// Extract date of birth from the Aadhaar QR data
+/// 170 gates
 fn date_extractor(nDelimitedData: [u32; MAX_DATA_LENGTH]) -> Date {
     Date {
         year: bytes_array_to_int(
@@ -98,6 +97,10 @@ fn date_extractor(nDelimitedData: [u32; MAX_DATA_LENGTH]) -> Date {
     }
 }
 
+/// Timestamp extractor
+/// Extracts the timestamp when the QR was signed rounded to nearest hour
+/// We ignore minutes and seconds to avoid identifying the user based on the precise timestamp
+/// 200 gates
 fn timestamp_extractor(
     year: u32,
     month: u32,
@@ -152,6 +155,9 @@ fn timestamp_extractor(
     (timestamp - IST_OFFSET)
 }
 
+/// Age and Gender extractor
+/// Extracts age and gender from the Aadhaar QR data
+//  300 gates
 fn age_and_gender_extractor(
     nDelimitedData: [u32; MAX_DATA_LENGTH],
     startDelimiterIndex: u32,
@@ -167,12 +173,12 @@ fn age_and_gender_extractor(
         gender_data[i] = nDelimitedData[(startDelimiterIndex + i) + 11];
     }
 
-    assert(age_data[0] == (DOB_POS as u32) * 255);
-    assert(age_data[11] == ((DOB_POS + 1) as u32) * 255);
+    assert(age_data[0] == (DOB_POS) * 255);
+    assert(age_data[11] == (DOB_POS + 1) * 255);
 
     // gender_data[1] -> represent gender
-    assert(gender_data[0] == (GENDER_POS as u32) * 255);
-    assert(gender_data[2] == ((GENDER_POS + 1) as u32) * 255);
+    assert(gender_data[0] == GENDER_POS * 255);
+    assert(gender_data[2] == (GENDER_POS + 1) * 255);
 
     let year = bytes_array_to_int([age_data[7], age_data[8], age_data[9], age_data[10]], 4);
     let month = bytes_array_to_int([age_data[4], age_data[5]], 2);
@@ -199,6 +205,9 @@ fn age_and_gender_extractor(
     (age, gender)
 }
 
+/// Pincode extractor
+/// Extracts the pincode from the Aadhaar QR data
+//  70 gates
 fn pincode_extractor(nDelimitedData: [u32; MAX_DATA_LENGTH], startDelimiterIndex: u32) -> u32 {
     // pincode data is 8 bytes long
     let mut pincode_data = [0; 8];
@@ -223,6 +232,9 @@ fn pincode_extractor(nDelimitedData: [u32; MAX_DATA_LENGTH], startDelimiterIndex
     pincode
 }
 
+/// State extractor
+/// Extracts the state from the Aadhaar QR data
+//  400 gates
 fn state_extractor(
     nDelimitedData: [u32; MAX_DATA_LENGTH],
     delimiterIndices: [u8; DELIMITER_INDICES_LENGTH],
@@ -246,6 +258,9 @@ fn state_extractor(
     state_packed_bytes[0]
 }
 
+/// Photo extractor
+/// Extracts the photo from the Aadhaar QR data
+// 11k gates
 fn photo_extractor(
     nDelimitedData: [u32; MAX_DATA_LENGTH],
     start_index: u32,
