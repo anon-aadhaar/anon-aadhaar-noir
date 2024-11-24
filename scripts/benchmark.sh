@@ -2,7 +2,7 @@
 
 cd ../circuits
 
-BB_CMD=${1:-"/Users/vikasrushi/.bb/bb"}
+BB_CMD=${1:-"bb"}
 TIMEFORMAT='%R'
 
 echo "Starting Benchmark Tests"

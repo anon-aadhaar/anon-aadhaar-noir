@@ -2,6 +2,9 @@
 
 This project implements the Anon-Aadhaar protocol using Noir.
 
+> [!WARNING]
+> It is not safe to use in production with real data. Please use the Circom implementation for production use.
+
 ## Modules
 
 - `/circuits`: **Noir Circuits**
