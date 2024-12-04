@@ -16,3 +16,5 @@ testcases/
 .Trashes
 ehthumbs.db
 Thumbs.db
+
+circuits/target/

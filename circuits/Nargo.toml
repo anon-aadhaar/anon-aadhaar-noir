@@ -1,6 +1,7 @@
 [package]
 name = "anon_aadhaar"
 type = "bin"
+version = "0.1.0"
 authors = [""]
 compiler_version = ">=0.38.0"
 
