@@ -409,10 +409,10 @@
     fastfile "0.0.20"
     ffjavascript "^0.3.0"
 
-"@mach-34/noir-bignum-paramgen@^1.0.2":
-  version "1.0.2"
-  resolved "https://registry.yarnpkg.com/@mach-34/noir-bignum-paramgen/-/noir-bignum-paramgen-1.0.2.tgz#9928bd1bc97ed67df654eda836a04ee9640a4761"
-  integrity sha512-80+8KcYR4RNxgYGBaJkZlmSDLUJcj0QIpKWUCUrShjqIQh4LGKi/dgf6JdziEzDVxKr4AkmCkA7pdwLcsD5xag==
+"@mach-34/noir-bignum-paramgen@^1.1.0":
+  version "1.1.0"
+  resolved "https://registry.yarnpkg.com/@mach-34/noir-bignum-paramgen/-/noir-bignum-paramgen-1.1.0.tgz#9601fde8cd42fff32d93cb94c935e6ddd23630c7"
+  integrity sha512-jiD5BzwZEeFPy5Bzro8Bu5JVixG0LT3DhlNwHH2ntuogc56jbejHSGZLhanhwjMMTvIvRKHc3D1sk/eCpWEs6Q==
 
 "@pcd/pcd-types@^0.10.0":
   version "0.10.0"
@@ -437,11 +437,6 @@
   integrity sha512-p8Yy/8sw1caA8CdRIQBG5tiLHmxtQKObCijiAa9Ez+d4+PRffM4054xbju0msf+cvhJpnFEeNjxmVT/0ipktrg==
   dependencies:
     undici-types "~6.19.8"
-
-"@types/pako@^2.0.3":
-  version "2.0.3"
-  resolved "https://registry.yarnpkg.com/@types/pako/-/pako-2.0.3.tgz#b6993334f3af27c158f3fe0dfeeba987c578afb1"
-  integrity sha512-bq0hMV9opAcrmE0Byyo0fY3Ew4tgOevJmQ9grUhpXQhYfyLJ1Kqg3P33JT5fdbT2AjeAjR51zqqVjAL/HMkx7Q==
 
 "@types/snarkjs@^0.7.6":
   version "0.7.8"
