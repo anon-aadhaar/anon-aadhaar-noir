@@ -1,10 +1,14 @@
 {
-  "name": "scripts",
-  "version": "1.0.0",
-  "description": "",
+  "name": "@anon-aadhaar/noir-core",
+  "version": "0.1.0",
+  "description": "JS SDK for Anon Aadhaar Noir implementation",
   "scripts": {
+    "build": "tsc",
+    "build:watch": "tsc --watch",
     "gen-test-inputs": "ts-node src/generateInputs.ts"
   },
+  "main": "./dist/index.js",
+  "module": "./dist/index.js",
   "author": "",
   "license": "MIT",
   "dependencies": {
