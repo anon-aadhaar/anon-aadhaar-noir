@@ -1,6 +1,7 @@
 import { Noir } from "@noir-lang/noir_js";
 import { UltraHonkBackend } from "@aztec/bb.js";
-import circuit from "../assets/circuit-0.1.0.json";
+import { pki } from "node-forge";
+import circuit from "../../js/assets/circuit-0.1.0.json";
 import { verifySignature } from "@anon-aadhaar/react";
 import {
   convertBigIntToByteArray,
@@ -15,30 +16,17 @@ import {
 
 
 export async function getPublicKeyModulusFromCertificate(certificate: string) {
-  // Convert PEM certificate to bigint pubkey
-  const pemCertificate = certificate;
-  const base64Certificate = pemCertificate.split(/\r?\n/).filter((line: string) => line.trimStart().endsWith('-----BEGIN CERTIFICATE-----') || line.trimStart().endsWith('-----END CERTIFICATE-----')).join('');
-  console.log(base64Certificate);
-  const binaryCertificate = atob(base64Certificate);
-  const certificateArrayBuffer = new ArrayBuffer(binaryCertificate.length);
-  const certificateView = new Uint8Array(certificateArrayBuffer);
-  for (let i = 0; i < binaryCertificate.length; i++) {
-    certificateView[i] = binaryCertificate.charCodeAt(i);
-  }
-  const modulusBuffer = await window.crypto.subtle.importKey("spki", certificateArrayBuffer, { name: "RSA-OAEP", hash: "SHA-256" }, true, ["encrypt"]);
-  const modulus = await window.crypto.subtle.exportKey("jwk", modulusBuffer);
-  const modulusBigInt = BigInt("0x" + Buffer.from(modulus.n as string, 'utf-8').toString('hex'));
+  const RSAPublicKey = pki.certificateFromPem(certificate).publicKey;
+  const publicKey = (RSAPublicKey as pki.rsa.PublicKey).n.toString(16);
 
-  return modulusBigInt;
+  const pubKeyBigInt = BigInt("0x" + publicKey);
+  return pubKeyBigInt;
 }
 
 export async function generateCircuitInputs(aadhaarQRData: string) {
   // Verify locally
   const { certificate } = await verifySignature(aadhaarQRData, true);
-  console.log(certificate);
   const pubKey = await getPublicKeyModulusFromCertificate(certificate as string);
-
-  console.log(pubKey);
 
   const compressedBytes = convertBigIntToByteArray(BigInt(aadhaarQRData));
   const qrDataBytes = decompressByteArray(compressedBytes);
@@ -51,14 +39,13 @@ export async function generateCircuitInputs(aadhaarQRData: string) {
     qrDataBytes.length - 256,
     qrDataBytes.length
   );
-
   const signatureBigInt = BigInt(
     "0x" + bufferToHex(Buffer.from(signatureBytes)).toString()
   );
 
-  let signatureLimbs = NoirBignum.bnToLimbStrArray(signatureBigInt);
-  let pubkeyModulusLimbs = NoirBignum.bnToLimbStrArray(pubKey);
-  let redcLimbs = NoirBignum.bnToRedcLimbStrArray(pubKey);
+  const signatureLimbs = NoirBignum.bnToLimbStrArray(signatureBigInt);
+  const pubkeyModulusLimbs = NoirBignum.bnToLimbStrArray(pubKey);
+  const redcLimbs = NoirBignum.bnToRedcLimbStrArray(pubKey);
 
   const delimiterIndices: number[] = [];
   for (let i = 0; i < signedDataPadded.length; i++) {
@@ -73,7 +60,7 @@ export async function generateCircuitInputs(aadhaarQRData: string) {
   const input = {
     qrDataPadded: {
       len: signedData.length,
-      storage: Uint8ArrayToCharArray(signedData),
+      storage: Uint8ArrayToCharArray(signedDataPadded),
     },
     qrDataPaddedLength: signedData.length.toString(),
     nullifierSeed: 1,
@@ -93,10 +80,10 @@ export async function generateCircuitInputs(aadhaarQRData: string) {
 
 export async function generateProof(qrData: string) {
   const input = await generateCircuitInputs(qrData);
+  console.log("Generated inputs", input);
 
   const noir = new Noir(circuit as any);
-
-  const backend = new UltraHonkBackend(circuit.bytecode);
+  const backend = new UltraHonkBackend(circuit.bytecode, { threads: 8 });
 
   const startTime = performance.now();
   const { witness } = await noir.execute(input);
