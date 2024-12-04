@@ -1,44 +1,44 @@
+import { Noir } from "@noir-lang/noir_js";
+import { UltraHonkBackend } from "@aztec/bb.js";
+import circuit from "../assets/circuit-0.1.0.json";
+import { verifySignature } from "@anon-aadhaar/react";
 import {
   convertBigIntToByteArray,
   decompressByteArray,
   hash,
 } from "@anon-aadhaar/core";
-import * as TOML from "@iarna/toml";
 import * as NoirBignum from "@mach-34/noir-bignum-paramgen";
 import {
   Uint8ArrayToCharArray,
   bufferToHex,
 } from "@zk-email/helpers/dist/binary-format";
-import { sha256Pad } from "@zk-email/helpers/dist/sha-utils";
-import crypto from "crypto";
-import { existsSync, mkdirSync, readFileSync, writeFileSync } from "fs";
-import path from "path";
-import { testQRData } from "../assets/test.json";
 
-let qrData = testQRData;
-let certificateName = "testCertificate.pem";
-if (process.env.REAL_DATA === "true") {
-  qrData = process.env.QR_DATA as string;
-  certificateName = "uidai_offline_publickey_26022021.cer";
-  if (!qrData) {
-    throw new Error("QR_DATA env is not set");
+
+export async function getPublicKeyModulusFromCertificate(certificate: string) {
+  // Convert PEM certificate to bigint pubkey
+  const pemCertificate = certificate;
+  const base64Certificate = pemCertificate.split(/\r?\n/).filter((line: string) => line.trimStart().endsWith('-----BEGIN CERTIFICATE-----') || line.trimStart().endsWith('-----END CERTIFICATE-----')).join('');
+  const binaryCertificate = atob(base64Certificate);
+  const certificateArrayBuffer = new ArrayBuffer(binaryCertificate.length);
+  const certificateView = new Uint8Array(certificateArrayBuffer);
+  for (let i = 0; i < binaryCertificate.length; i++) {
+    certificateView[i] = binaryCertificate.charCodeAt(i);
   }
+  const modulusBuffer = await window.crypto.subtle.importKey("spki", certificateArrayBuffer, { name: "RSA-OAEP", hash: "SHA-256" }, true, ["encrypt"]);
+  const modulus = await window.crypto.subtle.exportKey("jwk", modulusBuffer);
+  const modulusBigInt = BigInt("0x" + Buffer.from(modulus.n as string, 'utf-8').toString('hex'));
+
+  return modulusBigInt;
 }
 
-export function generateCircuitInputs(aadhaarQRData: string) {
-  // Get pubkey and convert to BigInt
-  const pkData = readFileSync(
-    path.join(__dirname, "../assets", certificateName)
-  );
-  const pk = crypto.createPublicKey(pkData);
-  const pubKey = BigInt(
-    "0x" +
-      bufferToHex(
-        Buffer.from(pk.export({ format: "jwk" }).n as string, "base64url")
-      )
-  );
+export async function generateCircuitInputs(aadhaarQRData: string) {
+  // Verify locally
+  const { certificate } = await verifySignature(aadhaarQRData, true);
+  const pubKey = await getPublicKeyModulusFromCertificate(certificate as string);
 
-  const compressedBytes = convertBigIntToByteArray(BigInt(qrData));
+  console.log(pubKey);
+
+  const compressedBytes = convertBigIntToByteArray(BigInt(aadhaarQRData));
   const qrDataBytes = decompressByteArray(compressedBytes);
   const signedData = qrDataBytes.slice(0, qrDataBytes.length - 256);
 
@@ -89,3 +89,19 @@ export function generateCircuitInputs(aadhaarQRData: string) {
   return input;
 }
 
+export async function generateProof(qrData: string) {
+  const input = await generateCircuitInputs(qrData);
+
+  const noir = new Noir(circuit as any);
+
+  const backend = new UltraHonkBackend(circuit.bytecode);
+
+  const startTime = performance.now();
+  const { witness } = await noir.execute(input);
+  const proof = await backend.generateProof(witness);
+  const provingTime = performance.now() - startTime;
+  console.log(`Proof generated in ${provingTime}ms`);
+
+  const verified = await backend.verifyProof(proof);
+  console.log(`Proof verified: ${verified}`);
+}

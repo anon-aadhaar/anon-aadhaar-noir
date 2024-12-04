@@ -9,8 +9,11 @@
   "license": "MIT",
   "dependencies": {
     "@anon-aadhaar/core": "^2.4.0",
+    "@anon-aadhaar/react": "^2.4.1",
+    "@aztec/bb.js": "^0.61.0",
     "@iarna/toml": "^2.2.5",
     "@mach-34/noir-bignum-paramgen": "^1.1.0",
+    "@noir-lang/noir_js": "^0.38.0",
     "@zk-email/helpers": "^6.1.1",
     "typescript": "^5.6.3"
   },
