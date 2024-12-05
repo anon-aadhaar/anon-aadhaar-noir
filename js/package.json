@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "description": "JS SDK for Anon Aadhaar Noir implementation",
   "scripts": {
-    "build": "tsc",
+    "build": "tsc && cp -r assets dist/",
     "build:watch": "tsc --watch",
     "gen-test-inputs": "ts-node src/generateInputs.ts"
   },
