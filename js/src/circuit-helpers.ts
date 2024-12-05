@@ -1,7 +1,7 @@
 import { Noir } from "@noir-lang/noir_js";
 import { UltraHonkBackend } from "@aztec/bb.js";
 import { pki } from "node-forge";
-import circuit from "../../js/assets/circuit-0.1.0.json";
+import circuit from "./assets/circuit-0.1.0.json";
 import { verifySignature } from "@anon-aadhaar/react";
 import {
   convertBigIntToByteArray,

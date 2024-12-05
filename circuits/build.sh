@@ -12,13 +12,13 @@ echo "Gate count:"
 bb gates -b target/anon_aadhaar.json | jq  '.functions[0].circuit_size'
 
 
-echo "Copying circuit.json to js/assets/..."
-cp target/anon_aadhaar.json "../js/assets/circuit-$VERSION.json"
+echo "Copying circuit.json to js/src/assets/..."
+cp target/anon_aadhaar.json "../js/src/assets/circuit-$VERSION.json"
 
 echo "Generating vkey..."
 bb write_vk_ultra_honk -b ./target/anon_aadhaar.json -o ./target/vk
 
-echo "Generating vkey.json to app/assets/..."
-node -e "const fs = require('fs'); fs.writeFileSync('../js/assets/circuit-$VERSION-vkey.json', JSON.stringify(Array.from(Uint8Array.from(fs.readFileSync('./target/vk')))));"
+echo "Generating vkey.json to app/src/assets/..."
+node -e "const fs = require('fs'); fs.writeFileSync('../js/src/assets/circuit-$VERSION-vkey.json', JSON.stringify(Array.from(Uint8Array.from(fs.readFileSync('./target/vk')))));"
 
 echo "Done"

@@ -17,10 +17,6 @@
     "sourceMap": true,
     "isolatedModules": true
   },
-  "include": [
-    "src/**/*",
-    "assets/**/*.json"
-  ],
   "files": [
     "src/index.ts"
   ]
