@@ -38,7 +38,7 @@ export async function generateCircuitInputs(aadhaarQRData: string, options: Gene
   const qrDataBytes = decompressByteArray(compressedBytes);
   const signedData = qrDataBytes.slice(0, qrDataBytes.length - 256);
 
-  const signedDataPadded = new Uint8Array(1100);
+  const signedDataPadded = new Uint8Array(1200);
   signedDataPadded.set(signedData);
 
   const signatureBytes = qrDataBytes.slice(

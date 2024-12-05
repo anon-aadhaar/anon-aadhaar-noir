@@ -30,7 +30,7 @@ export function generateCircuitInputs(aadhaarQRData, options) {
         const compressedBytes = convertBigIntToByteArray(BigInt(aadhaarQRData));
         const qrDataBytes = decompressByteArray(compressedBytes);
         const signedData = qrDataBytes.slice(0, qrDataBytes.length - 256);
-        const signedDataPadded = new Uint8Array(512 * 3);
+        const signedDataPadded = new Uint8Array(1200);
         signedDataPadded.set(signedData);
         const signatureBytes = qrDataBytes.slice(qrDataBytes.length - 256, qrDataBytes.length);
         const signatureHex = signatureBytes.reduce((str, byte) => str + byte.toString(16).padStart(2, '0'), '');
