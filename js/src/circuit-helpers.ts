@@ -89,8 +89,13 @@ export async function generateProof(qrData: string) {
   const { witness } = await noir.execute(input);
   const proof = await backend.generateProof(witness);
   const provingTime = performance.now() - startTime;
-  console.log(`Proof generated in ${provingTime}ms`);
 
+  return { proof, provingTime };
+}
+
+export async function verifyProof(proof: any) {
+  const backend = new UltraHonkBackend(circuit.bytecode, { threads: 8 });
   const verified = await backend.verifyProof(proof);
-  console.log(`Proof verified: ${verified}`);
+
+  return verified;
 }

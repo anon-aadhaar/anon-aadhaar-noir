@@ -77,9 +77,14 @@ export function generateProof(qrData) {
         const { witness } = yield noir.execute(input);
         const proof = yield backend.generateProof(witness);
         const provingTime = performance.now() - startTime;
-        console.log(`Proof generated in ${provingTime}ms`);
+        return { proof, provingTime };
+    });
+}
+export function verifyProof(proof) {
+    return __awaiter(this, void 0, void 0, function* () {
+        const backend = new UltraHonkBackend(circuit.bytecode, { threads: 8 });
         const verified = yield backend.verifyProof(proof);
-        console.log(`Proof verified: ${verified}`);
+        return verified;
     });
 }
 //# sourceMappingURL=circuit-helpers.js.map

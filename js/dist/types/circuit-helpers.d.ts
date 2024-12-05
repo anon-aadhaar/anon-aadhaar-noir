@@ -16,4 +16,8 @@ export declare function generateCircuitInputs(aadhaarQRData: string): Promise<{
     revealState: string;
     signalHash: string;
 }>;
-export declare function generateProof(qrData: string): Promise<void>;
+export declare function generateProof(qrData: string): Promise<{
+    proof: import("@aztec/bb.js").ProofData;
+    provingTime: number;
+}>;
+export declare function verifyProof(proof: any): Promise<boolean>;
