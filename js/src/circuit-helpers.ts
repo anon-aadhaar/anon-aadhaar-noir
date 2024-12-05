@@ -9,10 +9,6 @@ import {
   hash,
 } from "@anon-aadhaar/core";
 import * as NoirBignum from "@mach-34/noir-bignum-paramgen";
-import {
-  Uint8ArrayToCharArray,
-  bufferToHex,
-} from "@zk-email/helpers/dist/binary-format";
 
 
 export async function getPublicKeyModulusFromCertificate(certificate: string) {
@@ -23,25 +19,37 @@ export async function getPublicKeyModulusFromCertificate(certificate: string) {
   return pubKeyBigInt;
 }
 
-export async function generateCircuitInputs(aadhaarQRData: string) {
+export type GenerateCircuitInputsOptions = {
+  useTestingKey: boolean;
+  nullifierSeed: number;
+  signal: string;
+  revealGender: boolean;
+  revealAgeAbove18: boolean;
+  revealPinCode: boolean;
+  revealState: boolean;
+}
+
+export async function generateCircuitInputs(aadhaarQRData: string, options: GenerateCircuitInputsOptions) {
   // Verify locally
-  const { certificate } = await verifySignature(aadhaarQRData, true);
+  const { certificate } = await verifySignature(aadhaarQRData, options.useTestingKey);
   const pubKey = await getPublicKeyModulusFromCertificate(certificate as string);
 
   const compressedBytes = convertBigIntToByteArray(BigInt(aadhaarQRData));
   const qrDataBytes = decompressByteArray(compressedBytes);
   const signedData = qrDataBytes.slice(0, qrDataBytes.length - 256);
 
-  const signedDataPadded = new Uint8Array(512 * 3);
+  const signedDataPadded = new Uint8Array(1100);
   signedDataPadded.set(signedData);
 
   const signatureBytes = qrDataBytes.slice(
     qrDataBytes.length - 256,
     qrDataBytes.length
   );
-  const signatureBigInt = BigInt(
-    "0x" + bufferToHex(Buffer.from(signatureBytes)).toString()
+  const signatureHex = signatureBytes.reduce(
+    (str, byte) => str + byte.toString(16).padStart(2, '0'),
+    ''
   );
+  const signatureBigInt = BigInt('0x' + signatureHex);
 
   const signatureLimbs = NoirBignum.bnToLimbStrArray(signatureBigInt);
   const pubkeyModulusLimbs = NoirBignum.bnToLimbStrArray(pubKey);
@@ -60,26 +68,26 @@ export async function generateCircuitInputs(aadhaarQRData: string) {
   const input = {
     qrDataPadded: {
       len: signedData.length,
-      storage: Uint8ArrayToCharArray(signedDataPadded),
+      storage: Array.from(signedDataPadded).map(e => e.toString()),
     },
     qrDataPaddedLength: signedData.length.toString(),
-    nullifierSeed: 1,
+    nullifierSeed: options.nullifierSeed.toString(),
     delimiterIndices: delimiterIndices.map((e) => e.toString()),
     signature_limbs: signatureLimbs,
     modulus_limbs: pubkeyModulusLimbs,
     redc_limbs: redcLimbs,
-    revealGender: "1",
-    revealAgeAbove18: "1",
-    revealPinCode: "1",
-    revealState: "1",
-    signalHash: hash(1),
+    revealGender: options.revealGender ? "1" : "0",
+    revealAgeAbove18: options.revealAgeAbove18 ? "1" : "0",
+    revealPinCode: options.revealPinCode ? "1" : "0",
+    revealState: options.revealState ? "1" : "0",
+    signalHash: hash(options.signal),
   };
 
   return input;
 }
 
-export async function generateProof(qrData: string) {
-  const input = await generateCircuitInputs(qrData);
+export async function generateProof(qrData: string, options: GenerateCircuitInputsOptions) {
+  const input = await generateCircuitInputs(qrData, options);
   console.log("Generated inputs", input);
 
   const noir = new Noir(circuit as any);
@@ -90,7 +98,7 @@ export async function generateProof(qrData: string) {
   const proof = await backend.generateProof(witness);
   const provingTime = performance.now() - startTime;
 
-  return { proof, provingTime };
+  return { proof: proof.proof, publicInputs: proof.publicInputs, provingTime };
 }
 
 export async function verifyProof(proof: any) {

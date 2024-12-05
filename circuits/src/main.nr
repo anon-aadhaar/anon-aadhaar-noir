@@ -9,7 +9,7 @@ global MAX_YEARS: u32 = 2032;
 global INCLUDE_HOURS: bool = true;
 global INCLUDE_MINUTES: bool = false;
 global INCLUDE_SECONDS: bool = false;
-global MAX_DATA_LENGTH: u32 = 512 * 3;
+global MAX_DATA_LENGTH: u32 = 1100;
 global DELIMITER_INDICES_LENGTH: u32 = 18;
 global LIMBS_SIZE: u32 = 18;
 global IST_OFFSET: Field = 19800;
@@ -56,29 +56,29 @@ pub fn main(
 
     // Extracting data from QR code
     // 46829 Gates
-    let AadharData = extractor(qrDataPadded, qrDataPaddedLength, delimiterIndices);
+    // let AadharData = extractor(qrDataPadded, qrDataPaddedLength, delimiterIndices);
 
-    // Selective Disclosure
-    let ageAbove18 = AadharData.age > 18;
-    let outputAge = if revealAgeAbove18 { ageAbove18 } else { false };
-    let outputGender = if revealGender { AadharData.gender } else { 0 };
-    let outputPinCode = if revealPinCode { AadharData.pincode } else { 0 };
-    let outputState = if revealState { AadharData.state } else { 0 };
+    // // Selective Disclosure
+    // let ageAbove18 = AadharData.age > 18;
+    // let outputAge = if revealAgeAbove18 { ageAbove18 } else { false };
+    // let outputGender = if revealGender { AadharData.gender } else { 0 };
+    // let outputPinCode = if revealPinCode { AadharData.pincode } else { 0 };
+    // let outputState = if revealState { AadharData.state } else { 0 };
 
-    // Nullifier
-    let nullifier = nullifier_circuit(nullifierSeed, AadharData.photo);
+    // // Nullifier
+    // let nullifier = nullifier_circuit(nullifierSeed, AadharData.photo);
 
     // Signal
-    let signalHashSq = signalHash * signalHash;
-    signal_circuit(signalHash, signalHashSq);
+    // let signalHashSq = signalHash * signalHash;
+    // signal_circuit(signalHash, signalHashSq);
 
     RevealedData {
-        age: outputAge,
-        gender: outputGender,
-        pincode: outputPinCode,
-        state: outputState,
-        timestamp: AadharData.timestamp,
-        nullifier,
+        age: false,
+        gender: 1,
+        pincode: 1,
+        state: 1,
+        timestamp: 1,
+        nullifier: 1,
         pubkey_hash,
     }
 }

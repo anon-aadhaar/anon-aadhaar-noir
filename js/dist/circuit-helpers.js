@@ -14,7 +14,6 @@ import circuit from "./assets/circuit-0.1.0.json";
 import { verifySignature } from "@anon-aadhaar/react";
 import { convertBigIntToByteArray, decompressByteArray, hash, } from "@anon-aadhaar/core";
 import * as NoirBignum from "@mach-34/noir-bignum-paramgen";
-import { Uint8ArrayToCharArray, bufferToHex, } from "@zk-email/helpers/dist/binary-format";
 export function getPublicKeyModulusFromCertificate(certificate) {
     return __awaiter(this, void 0, void 0, function* () {
         const RSAPublicKey = pki.certificateFromPem(certificate).publicKey;
@@ -23,10 +22,10 @@ export function getPublicKeyModulusFromCertificate(certificate) {
         return pubKeyBigInt;
     });
 }
-export function generateCircuitInputs(aadhaarQRData) {
+export function generateCircuitInputs(aadhaarQRData, options) {
     return __awaiter(this, void 0, void 0, function* () {
         // Verify locally
-        const { certificate } = yield verifySignature(aadhaarQRData, true);
+        const { certificate } = yield verifySignature(aadhaarQRData, options.useTestingKey);
         const pubKey = yield getPublicKeyModulusFromCertificate(certificate);
         const compressedBytes = convertBigIntToByteArray(BigInt(aadhaarQRData));
         const qrDataBytes = decompressByteArray(compressedBytes);
@@ -34,7 +33,8 @@ export function generateCircuitInputs(aadhaarQRData) {
         const signedDataPadded = new Uint8Array(512 * 3);
         signedDataPadded.set(signedData);
         const signatureBytes = qrDataBytes.slice(qrDataBytes.length - 256, qrDataBytes.length);
-        const signatureBigInt = BigInt("0x" + bufferToHex(Buffer.from(signatureBytes)).toString());
+        const signatureHex = signatureBytes.reduce((str, byte) => str + byte.toString(16).padStart(2, '0'), '');
+        const signatureBigInt = BigInt('0x' + signatureHex);
         const signatureLimbs = NoirBignum.bnToLimbStrArray(signatureBigInt);
         const pubkeyModulusLimbs = NoirBignum.bnToLimbStrArray(pubKey);
         const redcLimbs = NoirBignum.bnToRedcLimbStrArray(pubKey);
@@ -50,26 +50,26 @@ export function generateCircuitInputs(aadhaarQRData) {
         const input = {
             qrDataPadded: {
                 len: signedData.length,
-                storage: Uint8ArrayToCharArray(signedDataPadded),
+                storage: Array.from(signedDataPadded).map(e => e.toString()),
             },
             qrDataPaddedLength: signedData.length.toString(),
-            nullifierSeed: 1,
+            nullifierSeed: options.nullifierSeed.toString(),
             delimiterIndices: delimiterIndices.map((e) => e.toString()),
             signature_limbs: signatureLimbs,
             modulus_limbs: pubkeyModulusLimbs,
             redc_limbs: redcLimbs,
-            revealGender: "1",
-            revealAgeAbove18: "1",
-            revealPinCode: "1",
-            revealState: "1",
-            signalHash: hash(1),
+            revealGender: options.revealGender ? "1" : "0",
+            revealAgeAbove18: options.revealAgeAbove18 ? "1" : "0",
+            revealPinCode: options.revealPinCode ? "1" : "0",
+            revealState: options.revealState ? "1" : "0",
+            signalHash: hash(options.signal),
         };
         return input;
     });
 }
-export function generateProof(qrData) {
+export function generateProof(qrData, options) {
     return __awaiter(this, void 0, void 0, function* () {
-        const input = yield generateCircuitInputs(qrData);
+        const input = yield generateCircuitInputs(qrData, options);
         console.log("Generated inputs", input);
         const noir = new Noir(circuit);
         const backend = new UltraHonkBackend(circuit.bytecode, { threads: 8 });
@@ -77,7 +77,7 @@ export function generateProof(qrData) {
         const { witness } = yield noir.execute(input);
         const proof = yield backend.generateProof(witness);
         const provingTime = performance.now() - startTime;
-        return { proof, provingTime };
+        return { proof: proof.proof, publicInputs: proof.publicInputs, provingTime };
     });
 }
 export function verifyProof(proof) {
