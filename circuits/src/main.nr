@@ -66,11 +66,12 @@ pub fn main(
     let outputState = if revealState { AadharData.state } else { 0 };
 
     // Nullifier
-    let nullifier = nullifier_circuit(nullifierSeed, AadharData.photo);
+    let nullifier = 1;
+    //  nullifier_circuit(nullifierSeed, AadharData.photo);
 
     // Signal
-    let signalHashSq = signalHash * signalHash;
-    signal_circuit(signalHash, signalHashSq);
+    // let signalHashSq = signalHash * signalHash;
+    // signal_circuit(signalHash, signalHashSq);
 
     RevealedData {
         age: outputAge,
