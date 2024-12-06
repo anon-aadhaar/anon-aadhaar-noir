@@ -36,8 +36,10 @@ pub fn verify_signature(
     // posideon hash of compressed public key
     assert(verify_sha256_pkcs1v15(sha, signature, RSA_EXPONENT));
 
-    let compressed_pub_key = compress_pubkey(modulus_limbs);
-    let pubkey_hash = std::hash::poseidon::bn254::hash_9(compressed_pub_key);
+    10
 
-    pubkey_hash
+    // let compressed_pub_key = compress_pubkey(modulus_limbs);
+    // let pubkey_hash = std::hash::poseidon::bn254::hash_9(compressed_pub_key);
+
+    // pubkey_hash
 }

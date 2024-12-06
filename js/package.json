@@ -1,21 +1,29 @@
 {
-  "name": "scripts",
-  "version": "1.0.0",
-  "description": "",
+  "name": "@anon-aadhaar/noir-core",
+  "version": "0.1.0",
+  "description": "JS SDK for Anon Aadhaar Noir implementation",
   "scripts": {
+    "build": "tsc",
+    "build:watch": "tsc --watch",
     "gen-test-inputs": "ts-node src/generateInputs.ts"
   },
+  "main": "./dist/index.js",
+  "module": "./dist/index.js",
   "author": "",
   "license": "MIT",
   "dependencies": {
     "@anon-aadhaar/core": "^2.4.0",
+    "@anon-aadhaar/react": "^2.4.1",
+    "@aztec/bb.js": "^0.61.0",
+    "node-forge": "^1.3.1",
     "@iarna/toml": "^2.2.5",
-    "@mach-34/noir-bignum-paramgen": "^1.0.2",
-    "@zk-email/helpers": "^6.1.1",
-    "pako": "^2.1.0",
-    "typescript": "^5.6.3"
+    "@mach-34/noir-bignum-paramgen": "^1.1.0",
+    "@noir-lang/noir_js": "^0.38.0",
+    "@zk-email/helpers": "^6.1.1"
   },
   "devDependencies": {
-    "@types/pako": "^2.0.3"
-  }
+    "typescript": "~5.6.2"
+  },
+  "types": "./dist/types/index.d.ts",
+  "packageManager": "yarn@1.22.22+sha512.a6b2f7906b721bba3d67d4aff083df04dad64c399707841b7acf00f6b133b7ac24255f2652fa22ae3534329dc6180534e98d17432037ff6fd140556e2bb3137e"
 }
