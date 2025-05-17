@@ -3,9 +3,9 @@ name = "anon_aadhaar"
 type = "bin"
 version = "0.1.0"
 authors = [""]
-compiler_version = ">=0.38.0"
+compiler_version = ">=1.0.0"    # compatible with 1.0.0-beta.3
 
 [dependencies]
-bignum = { tag = "v0.4.1", git = "https://github.com/noir-lang/noir-bignum" }
-rsa = { tag = "v0.4.0", git = "https://github.com/noir-lang/noir_rsa", directory = "lib" }
-nodash = { git = "https://github.com/olehmisar/nodash/", tag = "v0.36.0" }
+bignum = { tag = "v0.6.1", git = "https://github.com/noir-lang/noir-bignum" }
+rsa = { tag = "v0.7.0-1", git = "https://github.com/zkpassport/noir_rsa" }
+nodash = { git = "https://github.com/olehmisar/nodash/", tag = "v0.40.3" }  # matches sha256 v0.1.2
