@@ -1,5 +1,5 @@
 mod TestCase1 {
-    global SIGNATURE_LIMBS = [
+    global SIGNATURE_LIMBS: [u128; 18] = [
         0x3afa5cc0abf2c8a0485da1127c2b83,
         0x19cb4a628deb17be7ad7dcf5be8e77,
         0x3c59ebc97692e809ce3c58180c0f29,
@@ -19,7 +19,7 @@ mod TestCase1 {
         0xfe4b4c55021e52caa288b3c3be9609,
         0x84,
     ];
-    global MODULUS_LIMBS = [
+    global MODULUS_LIMBS: [u128; 18] = [
         0x3c0295a6e1e9f248f50073094ffaf1,
         0xd8ba70c4c2ab0acf2b09bc2fae981f,
         0x566167769b735ba12ca3580f919c1b,
@@ -40,7 +40,7 @@ mod TestCase1 {
         0x95,
     ];
 
-    global REDC_LIMBS = [
+    global REDC_LIMBS: [u128; 18] = [
         0x1cc53e3fbb2910411cb93b4a3e5abb,
         0x8fa48d43e9f7fb2834b7465b998767,
         0x2b4e1f8a87d43415cb533a0aaa61d0,
@@ -61,13 +61,13 @@ mod TestCase1 {
         0x1b52,
     ];
 
-    global SIGNED_DATA_LENGTH = 1137;
-    global NULLIFIER_SEED = 12345678;
-    global SIGNAL_HASH = 1001;
-    global DELIMITER =
+    global SIGNED_DATA_LENGTH: u32 = 1137;
+    global NULLIFIER_SEED: Field = 12345678;
+    global SIGNAL_HASH: Field = 1001;
+    global DELIMITER: [u8; 18] =
         [2, 4, 26, 38, 49, 51, 68, 79, 80, 96, 97, 104, 118, 124, 152, 165, 179, 184];
 
-    global SIGNED_DATA = [
+    global SIGNED_DATA: [u8; 1137] = [
         86, 50, 255, 51, 255, 50, 54, 57, 55, 50, 48, 50, 52, 48, 52, 50, 48, 48, 49, 52, 53, 53,
         50, 57, 51, 48, 255, 83, 117, 109, 105, 116, 32, 75, 117, 109, 97, 114, 255, 48, 49, 45, 48,
         49, 45, 49, 57, 56, 52, 255, 77, 255, 67, 47, 79, 32, 73, 115, 104, 119, 97, 114, 32, 67,

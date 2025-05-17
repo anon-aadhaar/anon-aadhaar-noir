@@ -29,14 +29,14 @@ pub struct RevealedData {
     pubkey_hash: Field,
 }
 
-// circuit size: 237811
+// circuit size: 169810
 pub fn main(
     qrDataPadded: QRData,
     qrDataPaddedLength: u32,
     delimiterIndices: [u8; DELIMITER_INDICES_LENGTH],
-    signature_limbs: [Field; LIMBS_SIZE],
-    modulus_limbs: [Field; LIMBS_SIZE],
-    redc_limbs: [Field; LIMBS_SIZE],
+    signature_limbs: [u128; LIMBS_SIZE],
+    modulus_limbs: [u128; LIMBS_SIZE],
+    redc_limbs: [u128; LIMBS_SIZE],
     revealAgeAbove18: bool,
     revealGender: bool,
     revealPinCode: bool,

@@ -19,7 +19,7 @@ use nodash::pack_bytes;
 
 /// Aadhaar QRDataExtractor
 /// Extracts the name, date, gender, photo from the Aadhaar QR data
-pub fn extractor(
+fn extractor(
     qrDataPadded: QRData,
     qrDataPaddedLength: u32,
     delimiterIndices: [u8; DELIMITER_INDICES_LENGTH],
