@@ -22,9 +22,9 @@ fn compress_pubkey(pub_key: [Field; LIMBS_SIZE]) -> [Field; LIMBS_SIZE / 2] {
 pub fn verify_signature(
     qrDataPadded: QRData,
     qrDataPaddedLength: u32,
-    signature_limbs: [Field; LIMBS_SIZE],
-    modulus_limbs: [Field; LIMBS_SIZE],
-    redc_limbs: [Field; LIMBS_SIZE],
+    signature_limbs: [u128; LIMBS_SIZE],
+    modulus_limbs: [u128; LIMBS_SIZE],
+    redc_limbs: [u128; LIMBS_SIZE],
 ) -> Field {
     let sha = sha256_var(qrDataPadded.storage, qrDataPaddedLength as u64);
     let has_multiplicative_inverse = false;
